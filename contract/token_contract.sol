@@ -1,126 +1,73 @@
 // SPDX-License-Identifier: MIT
-
-
-// Comments will help to naviguate through the code. Main purpose is to explain the different functions.
-
-
 pragma solidity ^0.8.9;
 
-// Import Openzeppelin ERC20 Token Smart Contract basic functionalities.
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
-/** 
-BCP Token is a so called ERC20 Token, with additional functionalities. 
-It is built around two main parts: 
-- BCP TOKEN LAUNCH AND MANAGEMENT: defines the initial parameters and the basic functionalities of the BCP token;
-- RECOVERY FUNCTIONALITY: defines functionalities related to token recovery from a lost address
-*/
-
-contract BCP_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
-
- 
- //---------------------------------------------- BCP TOKEN LAUNCH AND MANAGEMENT ---------------------------------------------//
-
-
-    // Initial variables to configurate before launching the token (aligment with CEO and CFO).
-    string private _tokenName = "BCP_AG_Token";
+contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
+    string private _tokenName = "SCL_Token";
     string private _tokenSymbol = "BAG";
-    uint8 private _decimals = 0; //(18 is recommanded as it is commonly the case)
+    uint8 private _decimals = 18;
     uint private _InitialTokenAmount = 100;
     uint private _RegistrationAgreementVersionNumber = 0;
     string private _RegistrationAgreement;
 
     // An event will be triggered whenever the registration agreement is updated, with the version number, the date of modification, and the link to the latest version.
-    event NewRegisrationAgreement (
-        uint indexed versionNumber,
-        uint date,
-        string linkToRegistrationAgreement
-    );
+    event NewRegisrationAgreement (uint indexed versionNumber, uint date, string linkToRegistrationAgreement);
 
     // An event will be triggered whenever an announcement to current and future token holder is maid.
-    event _Announcement(
-        uint date,
-        string announcement
-    );
+    event _Announcement(uint date, string announcement);
 
     // Constructor using the Oppenzeplin ERC20 Token Smart Contractm (BCP token follows the ERC20 principles). 
     constructor() 
-    ERC20(_tokenName, _tokenSymbol) {
-        _mint(msg.sender, _InitialTokenAmount * 10 ** _decimals);
-    }
-
- 
-    //************************************************* Functions ************************************************************
-
+    ERC20(_tokenName, _tokenSymbol) {_mint(msg.sender, _InitialTokenAmount * 10 ** _decimals);}
 
     // BCP Token SM holder has a pausable functioanlity in case of emergency. 
     // more details: https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20Pausable
-    function pause() public onlyOwner {
-        _pause();
-    }
+    function pause() public onlyOwner {_pause();}
 
-    function unpause() public onlyOwner {
-        _unpause();
-    }
+    function unpause() public onlyOwner {_unpause();}
 
     // The owner of the contract can mint (create) new tokens, increasing the total supply.
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
-    }
+    function mint(address to, uint256 amount) public onlyOwner {_mint(to, amount);}
 
-    // Overriding the burn() function from ERC20Burnable.sol
     // The owner of the contract can burn some tokens of its own, decreasing the total supply.
-    // other token owners are not allowed to burn tokens.
-    function burn(uint256 amount) public onlyOwner override {
-        super.burn(amount);
-    }
+    function burn(uint256 amount) public onlyOwner override {super.burn(amount);}
 
     // The function burnFrom() inheritated from RC20Burnable.sol is disabled for this contract
     function burnFrom(address, uint256) public view override onlyOwner {
-            revert("burnFrom() function has been disabled"); 
-    }
+        revert("burnFrom() function has been disabled");}
 
-    // The function renounceOwnership() inheritated from Ownable.sol is disabled for this contract
+    // The function renounceOwnership() inherited from Ownable.sol is disabled for this contract
     function renounceOwnership() public view override onlyOwner {
-            revert("renounceOwnership function has been disabled"); 
-    }
+            revert("renounceOwnership function has been disabled");}
 
     // Overriding the decimals() function from ERC20.sol so that the funciton returns the number in the constructor
     function decimals() public view override returns (uint8) {
-        return _decimals;
-    }
+        return _decimals;}
 
     // Internal function that allows developers to extend a regular ERC20 Token by adding further functionalities.
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal
-        whenNotPaused
-        override
-    {
-        super._beforeTokenTransfer(from, to, amount);
-    }
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal whenNotPaused override {
+        super._beforeTokenTransfer(from, to, amount);}
 
     // Function to set new registration aggreement.
     function set_registration_agreement(string memory _NewlinkToRegistrationAgreement) public onlyOwner returns(bool) {
         _RegistrationAgreementVersionNumber += 1 ;
         _RegistrationAgreement = _NewlinkToRegistrationAgreement ;
         emit NewRegisrationAgreement(_RegistrationAgreementVersionNumber, block.timestamp, _NewlinkToRegistrationAgreement);
-        return true;
-    }
+        return true;}
 
     // Function to access the latest registration agreement at all time.
     function registration_agreement() public view returns (string memory) {
-        return _RegistrationAgreement;
-    }
+        return _RegistrationAgreement;}
 
     // Function for the owner of the Token SM to make announcements.
     function Announcement(string memory _announcement) public onlyOwner returns(bool) {
         emit _Announcement(block.timestamp, _announcement);
-        return true;
-    }
+        return true;}
 
 
      //---------------------------------------------- RECOVERY FUNCTIONALITY ---------------------------------------------//
