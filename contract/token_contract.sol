@@ -21,7 +21,7 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
     // An event will be triggered whenever an announcement to current and future token holder is maid.
     event _Announcement(uint date, string announcement);
 
-    // Constructor using the Oppenzeplin ERC20 Token Smart Contractm (BCP token follows the ERC20 principles). 
+    // Constructor using the Oppenzeppelin ERC20 Token Smart Contract (BCP token follows the ERC20 principles).
     constructor() 
     ERC20(_tokenName, _tokenSymbol) {_mint(msg.sender, _InitialTokenAmount * 10 ** _decimals);}
 
@@ -69,61 +69,21 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
         emit _Announcement(block.timestamp, _announcement);
         return true;}
 
-
-     //---------------------------------------------- RECOVERY FUNCTIONALITY ---------------------------------------------//
-
-    /** 
-    The Recovery functionality allows token owners to recover their token after loosing their private address.
-    To access this functionality, a token owner must provide a recovery adress (a "backup" address he/she trusts).
-    
-    @dev stores all lost addresses (that is, original addresses that were declared lost).
-    */
-
-    address[] public lostAddresses;
-
-    /**
-    @dev  
-    1. RecoveryAddressSet provides information on the token holder opting in for the recovery function
-    2. AddressDeclaredLost provides information on the addresses that are declared lost
-
-    @param _address is a main address of the token holder
-    @param _recoveryAddress is a backup address for recovery in case main address is lost
-    */
     event RecoveryAddressSet(address _address, address _recoveryAddress);
     event AddressDeclaredLost(address _lostAddress);
 
-    /** 
-    @dev maps main address to the status lost/not lost
-    */
+    address[] public lostAddresses;
     mapping(address => bool) public declaredLost;
-
-    /** 
-    @dev maps main address to the recovery address
-    NOTE: a pair of main address and recovery address verifies the identity of the token holder
-    */
     mapping(address => address) public recoveryAddresses;
 
-   
-    //************************************************* Functions ************************************************************
-
-    /**
-    @dev sets a recovery address for the token holder's main address
-    @param _recoveryAddress is a backup address for recovery
-    */ 
     function setRecoveryAddress(address _recoveryAddress) external {
         // Set indicated recovery address for this token holder
         recoveryAddresses[msg.sender] = _recoveryAddress;
-        // (ERC20) to allow for future transfer from main account to recovery account the allowance is set to the total supply of BCP tokens. The transffered balance then cannot exceed the supply.
+        // (ERC20) to allow for future transfer from main account to recovery account the allowance is set to the total supply of BCP tokens. The transferred balance then cannot exceed the supply.
         approve(_recoveryAddress, totalSupply());
         // Send information about recovery address to the ATL website
-        emit RecoveryAddressSet(msg.sender, _recoveryAddress);
-    }
-    
-    /**
-    @dev declares the address lost
-    NOTE: function can only be called by the recovery address that was set during the initial set up
-    @param _lostAddress is a main address of the token holder that was lost
-    */ 
+        emit RecoveryAddressSet(msg.sender, _recoveryAddress);}
+
     function declareLost(address _lostAddress) public returns (bool) {
         // Checks that function is called from the recovery address indicated for the main token holder address. 
         // If no recovery address was set up, an error message will be displayed.
@@ -138,7 +98,4 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
         emit AddressDeclaredLost(_lostAddress);
         return(declaredLost[_lostAddress] = true);
     }
-
-
-
 }
