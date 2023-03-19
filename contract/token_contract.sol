@@ -8,24 +8,25 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
+
     string private _tokenName = "SCL_Token";
-    string private _tokenSymbol = "BAG";
+    string private _tokenSymbol = "SCL";
     uint8 private _decimals = 18;
     uint private _InitialTokenAmount = 100;
     uint private _RegistrationAgreementVersionNumber = 0;
     string private _RegistrationAgreement;
+    address[] public lostAddresses;
+    mapping(address => bool) public declaredLost;
+    mapping(address => address) public recoveryAddresses;
 
-    // An event will be triggered whenever the registration agreement is updated, with the version number, the date of modification, and the link to the latest version.
     event NewRegisrationAgreement (uint indexed versionNumber, uint date, string linkToRegistrationAgreement);
-
-    // An event will be triggered whenever an announcement to current and future token holder is maid.
     event _Announcement(uint date, string announcement);
+    event RecoveryAddressSet(address _address, address _recoveryAddress);
+    event AddressDeclaredLost(address _lostAddress);
 
-    // Constructor using the Oppenzeppelin ERC20 Token Smart Contract (BCP token follows the ERC20 principles).
-    constructor() 
-    ERC20(_tokenName, _tokenSymbol) {_mint(msg.sender, _InitialTokenAmount * 10 ** _decimals);}
+    constructor() ERC20(_tokenName, _tokenSymbol) {_mint(msg.sender, _InitialTokenAmount * 10 ** _decimals);}
 
-    // BCP Token SM holder has a pausable functioanlity in case of emergency. 
+    // SCL Token SM holder has a pausable functioanlity in case of emergency. 
     // more details: https://docs.openzeppelin.com/contracts/2.x/api/token/erc20#ERC20Pausable
     function pause() public onlyOwner {_pause();}
 
@@ -46,8 +47,7 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
             revert("renounceOwnership function has been disabled");}
 
     // Overriding the decimals() function from ERC20.sol so that the funciton returns the number in the constructor
-    function decimals() public view override returns (uint8) {
-        return _decimals;}
+    function decimals() public view override returns (uint8) {return _decimals;}
 
     // Internal function that allows developers to extend a regular ERC20 Token by adding further functionalities.
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal whenNotPaused override {
@@ -55,29 +55,20 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
 
     // Function to set new registration aggreement.
     function set_registration_agreement(string memory _NewlinkToRegistrationAgreement) public onlyOwner returns(bool) {
-        _RegistrationAgreementVersionNumber += 1 ;
-        _RegistrationAgreement = _NewlinkToRegistrationAgreement ;
+        _RegistrationAgreementVersionNumber += 1;
+        _RegistrationAgreement = _NewlinkToRegistrationAgreement;
         emit NewRegisrationAgreement(_RegistrationAgreementVersionNumber, block.timestamp, _NewlinkToRegistrationAgreement);
         return true;}
 
     // Function to access the latest registration agreement at all time.
-    function registration_agreement() public view returns (string memory) {
-        return _RegistrationAgreement;}
+    function registration_agreement() public view returns (string memory) {return _RegistrationAgreement;}
 
     // Function for the owner of the Token SM to make announcements.
     function Announcement(string memory _announcement) public onlyOwner returns(bool) {
         emit _Announcement(block.timestamp, _announcement);
         return true;}
 
-    event RecoveryAddressSet(address _address, address _recoveryAddress);
-    event AddressDeclaredLost(address _lostAddress);
-
-    address[] public lostAddresses;
-    mapping(address => bool) public declaredLost;
-    mapping(address => address) public recoveryAddresses;
-
     function setRecoveryAddress(address _recoveryAddress) external {
-        // Set indicated recovery address for this token holder
         recoveryAddresses[msg.sender] = _recoveryAddress;
         // (ERC20) to allow for future transfer from main account to recovery account the allowance is set to the total supply of BCP tokens. The transferred balance then cannot exceed the supply.
         approve(_recoveryAddress, totalSupply());
@@ -93,7 +84,6 @@ contract SCL_AG_Token is ERC20, ERC20Burnable, Pausable, Ownable {
         // Transfer of tokens from lost main account to recovery account
         uint256 _amount = balanceOf(_lostAddress);
         transferFrom(_lostAddress, msg.sender, _amount);
-
         // Emit information about lost address
         emit AddressDeclaredLost(_lostAddress);
         return(declaredLost[_lostAddress] = true);
