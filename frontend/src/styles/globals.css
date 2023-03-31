@@ -1,6 +1,12 @@
 body {
   background-color: #05503C;
+  background-image: url('/BackgroundSpiral.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
   font-family: 'Inter';
   font-style: normal;
+  min-height: 100vh;
+  margin: 0;
 }
 
