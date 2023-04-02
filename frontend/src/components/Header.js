@@ -1,6 +1,6 @@
 // Header.js
 import React from 'react';
-import styles from '@/styles/header.module.css';
+import styles from '@/styles/Header.module.css';
 import TextField from '@mui/material/TextField';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -9,25 +9,34 @@ import Web3 from 'web3';
 
 const Header = () => {
     const [web3, setWeb3] = useState(null);
+    const [account, setAccount] = useState(null);
 
     useEffect(() => {
         if (window.ethereum) {
-            setWeb3(new Web3(window.ethereum));
+        setWeb3(new Web3(window.ethereum));
         } else {
-            console.log('Please install MetaMask or another Ethereum wallet provider.');
+        console.log('Please install MetaMask or another Ethereum wallet provider.');
         }
     }, []);
-  
+
     const connectWallet = async () => {
-      if (!web3) return;
-  
-      try {
+        if (!web3) return;
+
+        try {
         const accounts = await web3.eth.requestAccounts();
         console.log('Connected account:', accounts[0]);
-      } catch (error) {
-        console.error('Error connecting to wallet:', error);
-      }
+        setAccount(accounts[0]); // Save the connected account
+        } catch (error) {
+            console.error('Error connecting to wallet:', error);
+        }
     };
+
+    // Function to truncate the address for better readability
+    const truncateAddress = (address) => {
+        if (!address) return '';
+        return address.slice(0, 6) + '...' + address.slice(-4);
+    };
+
     return (
         <header className={styles.header}>
             <div className={styles.logo}>
@@ -78,7 +87,14 @@ const Header = () => {
                 }}
             />
             <div className={styles.connectWallet}>
-                <button onClick={connectWallet}><img src="/ConnectWallet.svg" alt="connect wallet" /></button>
+                {/* JSX conditionals: condition ? expressionIfTrue : expressionIfFalse */}
+                {account ? (
+                <div>{truncateAddress(account)}</div>
+                ) : (
+                <button onClick={connectWallet}>
+                    <img src="/ConnectWallet.svg" alt="connect wallet" />
+                </button>
+                )}
             </div>
         </header>
     );

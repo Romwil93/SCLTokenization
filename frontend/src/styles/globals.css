@@ -10,3 +10,12 @@ body {
   margin: 0;
 }
 
+h1 {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: bold;
+  font-size: 40px;
+  line-height: 58px;
+  color: #FFFFFF;
+}
+
