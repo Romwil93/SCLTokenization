@@ -48,3 +48,26 @@
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 25px;
 }
+
+.inputWrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+.CurSelector0 {
+    width: 17.5%;
+    right: 10%;
+    top: 35%;
+    position: absolute;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.CurSelector1 {
+    width: 17.5%;
+    right: 10%;
+    top: 58%;
+    position: absolute;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
