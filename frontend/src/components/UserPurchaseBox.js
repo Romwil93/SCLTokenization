@@ -9,7 +9,7 @@ const UserPurchaseBox = () => {
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
   
-  const tokenPrice = 0.5; // The cost of a token in MATIC
+  const tokenPrice = 0.001; // The cost of a token in MATIC
   const [amountInMatic, setamountInMatic] = useState('');
   const [amountInTokens, setAmountInTokens] = useState('');
 
@@ -37,7 +37,7 @@ const UserPurchaseBox = () => {
       setAccount(accounts[0]);
 
       // Load the smart contract
-      const contractAddress = '0x066d7f9A63e50D29FF9853d9511D1C1ed5d21211';
+      const contractAddress = '0xA99DB4727316F3ae3756F2938C7feCaFEDB5F606';
       const contract = new web3.eth.Contract(abi, contractAddress);
       setContract(contract);
       } else {
