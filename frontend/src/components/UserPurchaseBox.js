@@ -8,8 +8,7 @@ const UserPurchaseBox = () => {
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
-  
-  const tokenPrice = 0.001; // The cost of a token in MATIC
+  const [tokenPrice, setTokenPrice] = useState(0);
   const [amountInMatic, setamountInMatic] = useState('');
   const [amountInTokens, setAmountInTokens] = useState('');
 
@@ -17,15 +16,15 @@ const UserPurchaseBox = () => {
     if (amountInMatic !== '') {
       setAmountInTokens(amountInMatic / tokenPrice);
     }
-  }, [amountInMatic]);
+  }, [amountInMatic, tokenPrice]);
 
   useEffect(() => {
     if (amountInTokens !== '') {
       setamountInMatic(amountInTokens * tokenPrice);
     }
-  }, [amountInTokens]);
+  }, [amountInTokens, tokenPrice]);
 
- const loadWeb3AndBlockchainData = async () => {
+  const loadWeb3AndBlockchainData = async () => {
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
@@ -37,17 +36,29 @@ const UserPurchaseBox = () => {
       setAccount(accounts[0]);
 
       // Load the smart contract
-      const contractAddress = '0xA99DB4727316F3ae3756F2938C7feCaFEDB5F606';
+      const contractAddress = '0x5bfcC7c3e81D40e73934BEc18C6032c6a769f791';
       const contract = new web3.eth.Contract(abi, contractAddress);
       setContract(contract);
-      } else {
+    } else {
       window.alert('Please install MetaMask!');
-      }
+    }
   };
 
   useEffect(() => {
     loadWeb3AndBlockchainData();
   }, []);
+
+  const fetchTokenPrice = async () => {
+    if (contract) {
+      const price = await contract.methods.offeringPrice().call();
+      const priceInMatic = web3.utils.fromWei(price.toString(), 'ether');
+      setTokenPrice(parseFloat(priceInMatic));
+    }
+  };  
+
+  useEffect(() => {
+    fetchTokenPrice();
+  }, [contract]);
 
   const buyTokens = async (amountInMatic) => {
     if (web3 && account && contract) {

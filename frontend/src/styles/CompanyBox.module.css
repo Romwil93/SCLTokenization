@@ -48,6 +48,24 @@
     border-radius: 25px;
 } 
 
+.amountBoxO {
+    position: relative;
+    width: 80%;
+    height: 20%;   
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+} 
+
+.priceBox {
+    position: relative;
+    width: 80%;
+    height: 20%;   
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
 .burn {
     position: absolute;
     width: 40%;
@@ -63,6 +81,49 @@
     width: 40%;
     height: 13%;
     top: 50%;
+    left: 42%;
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
+.pause{
+    position: absolute;
+    width: 40%;
+    height: 13%;
+    top: 25%;
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
+.unpause{
+    position: absolute;
+    width: 40%;
+    height: 13%;
+    top: 25%;
+    left: 42%;
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
+.staOffering {
+    position: absolute;
+    width: 40%;
+    height: 13%;
+    top: 60%;
+    left: 0%;
+    background: #D9D9D9;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
+.stoOffering {
+    position: absolute;
+    width: 40%;
+    height: 13%;
+    top: 60%;
     left: 42%;
     background: #D9D9D9;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);

@@ -3,6 +3,9 @@ import styles from '@/styles/CompanyBox.module.css';
 import Web3 from 'web3';
 import abi from '../contracts/abi.json';
 import BurnMint from '../components/BurnMint';
+import Offering from '../components/Offering';
+import Pause from '../components/Pause';
+
 
 
 
@@ -25,7 +28,7 @@ const CompanyBox = () => {
         setAccount(accounts[0]);
   
         // Load the smart contract
-        const contractAddress = '0xA99DB4727316F3ae3756F2938C7feCaFEDB5F606';
+        const contractAddress = '0x5bfcC7c3e81D40e73934BEc18C6032c6a769f791';
         const contract = new web3.eth.Contract(abi, contractAddress);
         setContract(contract);
         } else {
@@ -53,6 +56,8 @@ const CompanyBox = () => {
           </div>
           <div className={styles.contentArea}>
             {selectedOption === 'burnMint' && (<BurnMint web3={web3} account={account} contract={contract} />)}
+            {selectedOption === 'pauseUnpause' && (<Pause web3={web3} account={account} contract={contract} />)}
+            {selectedOption === 'startStopOffering' && (<Offering web3={web3} account={account} contract={contract} />)}
             {/* {selectedOption === 'pauseUnpause' && <PauseUnpauseComponent />}
             {selectedOption === 'startStopOffering' && <StartStopOfferingComponent />} */}
           </div>
