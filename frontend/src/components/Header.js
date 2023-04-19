@@ -1,6 +1,6 @@
 // Header.js
 import React from 'react';
-import styles from '@/styles/Header.module.css';
+import styles from '../styles/Header.module.css';
 import TextField from '@mui/material/TextField';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from '@/styles/CompanyBox.module.css';
+import styles from '../styles/CompanyBox.module.css';
 
 const Offering = ({ web3, account, contract }) => {
     const handlePause = async () => {

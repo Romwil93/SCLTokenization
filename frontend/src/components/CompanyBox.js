@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from '@/styles/CompanyBox.module.css';
+import styles from '../styles/CompanyBox.module.css';
 import Web3 from 'web3';
 import abi from '../contracts/abi.json';
 import BurnMint from '../components/BurnMint';
