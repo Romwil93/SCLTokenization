@@ -10,7 +10,7 @@ import Pause from '../components/Pause';
 
 
 const CompanyBox = () => {
-  const [selectedOption, setSelectedOption] = useState(null);  
+  const [selectedOption, setSelectedOption] = useState('burnMint');  
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [contract, setContract] = useState(null);
