@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Header />
       <Link href="/company">
-        <button>Change to cyompany view</button>
+        <button>Change to company view</button>
       </Link>
 
       <UserPurchaseBox />
