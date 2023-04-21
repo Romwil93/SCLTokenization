@@ -27,3 +27,8 @@ button {
   line-height: 40px;
 }
 
+@media only screen and (max-width: 767px) {
+  h1 {
+    font-size: 34px;
+  }
+}

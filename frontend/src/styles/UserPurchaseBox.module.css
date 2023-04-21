@@ -1,4 +1,5 @@
 /* src/components/Rectangle.module.css */
+
 .rectangle {
     position: fixed;
     width: 80%;
@@ -71,3 +72,12 @@
     transform: translateY(-50%);
     pointer-events: none;
 }
+
+@media only screen and (max-width: 767px) {
+    .rectangle {
+      width: 90%;
+      height: 80%;
+      border-radius: 15px;
+    }
+}
+

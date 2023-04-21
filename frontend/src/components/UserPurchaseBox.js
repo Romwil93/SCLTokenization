@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styles from '../styles/UserPurchaseBox.module.css';
 import Web3 from 'web3';
 import abi from '../contracts/abi.json';
-
+import Button from '@mui/material/Button';
+import { styled } from '@mui/system';
 
 const UserPurchaseBox = () => {
   const [web3, setWeb3] = useState(null);
@@ -69,28 +70,43 @@ const UserPurchaseBox = () => {
       window.alert('Please connect to MetaMask and load the smart contract.');
     }
   };
-  
 
+  const CustomButton = styled(Button)({
+    backgroundColor: '#D9D9D9;',
+    color: '#000000',
+    '&:hover': {
+      backgroundColor: '#D9D9D8',
+    },
+    // Add any other custom styles here
+  });
+  
   return (
     <div>
-        <div className={styles.rectangle}>
-            <h1>Company Name AG</h1>
-            <input
-              type="number"
-              value={amountInMatic}
-              onChange={(e) => setamountInMatic(e.target.value)}
-              className={styles.box0}
-            />
-            <img src="/CurSelector.svg" alt="Logo" className={styles.CurSelector0} />
-            <input
-              type="number"
-              value={amountInTokens}
-              onChange={(e) => setAmountInTokens(e.target.value)}
-              className={styles.box1}
-            />
-            <img src="/CurSelector1.svg" alt="Logo" className={styles.CurSelector1} />
-            <button onClick={() => buyTokens(amountInMatic)} className={styles.buy}>Buy</button>
+      <div className={styles.rectangle}>
+        <h1>Company Name AG</h1>
+        <CustomButton variant="contained" size="large">
+          Large
+      </CustomButton>
+        <div className={styles.box}>
+          <input
+            type="number"
+            value={amountInMatic}
+            onChange={(e) => setamountInMatic(e.target.value)}
+            className={styles.box0}
+          />
+          <img src="/CurSelector.svg" alt="Logo" className={styles.CurSelector0} />
         </div>
+        <div className={styles.box}>
+          <input
+            type="number"
+            value={amountInTokens}
+            onChange={(e) => setAmountInTokens(e.target.value)}
+            className={styles.box1}
+          />
+          <img src="/CurSelector1.svg" alt="Logo" className={styles.CurSelector1} />
+        </div>
+        <button onClick={() => buyTokens(amountInMatic)} className={styles.buy}>Buy</button>
+      </div>
     </div>
   );
 };

@@ -11,7 +11,6 @@ export default function Home() {
       <Link href="/company">
         <button>Change to company view</button>
       </Link>
-
       <UserPurchaseBox />
     </>  
   )

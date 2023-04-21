@@ -13,6 +13,15 @@
     border-radius: 25px;
 }
 
+/* Media query for smartphones */
+@media only screen and (max-width: 767px) {
+    .rectangle {
+      width: 90%;
+      height: 80%;
+      border-radius: 15px;
+    }
+  }
+
 .blackBox {
     position: absolute;
     width: 25%; /* Adjust the width as needed */

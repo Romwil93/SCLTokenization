@@ -49,6 +49,9 @@ const Header = () => {
                 sx={{
                     width: '350px',
                     height: '40px',
+                    '@media only screen and (max-width: 767px)': {
+                        display: 'none',
+                      },
                     // set background color
                     backgroundColor: 'rgba(0, 104, 55, 1)',
                     // Set the text color
