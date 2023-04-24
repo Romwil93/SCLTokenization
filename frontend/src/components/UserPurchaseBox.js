@@ -81,13 +81,11 @@ const UserPurchaseBox = () => {
   });
   
   return (
-    <div>
-      <div className={styles.rectangle}>
-        <h1>Company Name AG</h1>
-        <CustomButton variant="contained" size="large">
-          Large
-      </CustomButton>
-        <div className={styles.box}>
+    <div className={styles.rectangle}>
+        <div className={styles.name}>
+          <h1>Company Name AG</h1>
+        </div>
+        <div>
           <input
             type="number"
             value={amountInMatic}
@@ -96,7 +94,7 @@ const UserPurchaseBox = () => {
           />
           <img src="/CurSelector.svg" alt="Logo" className={styles.CurSelector0} />
         </div>
-        <div className={styles.box}>
+        <div>
           <input
             type="number"
             value={amountInTokens}
@@ -106,7 +104,6 @@ const UserPurchaseBox = () => {
           <img src="/CurSelector1.svg" alt="Logo" className={styles.CurSelector1} />
         </div>
         <button onClick={() => buyTokens(amountInMatic)} className={styles.buy}>Buy</button>
-      </div>
     </div>
   );
 };
