@@ -1,5 +1,5 @@
 body {
-  background-color: #05503C;
+  background-color: #05503C !important;
   background-image: url('/BackgroundSpiral.svg');
   background-repeat: no-repeat;
   background-position: center;
