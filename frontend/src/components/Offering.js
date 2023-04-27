@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const Offering = ({ web3, account, contract }) => {
@@ -33,29 +35,60 @@ const Offering = ({ web3, account, contract }) => {
     };
 
     return (
-        <div>
+        <div className={styles.container}>
             <h1>Start/Stop Offering</h1>
-            <p>Amount</p>
-            <input
+            <TextField
+                id="filled-number"
+                label="Amount"
                 type="number"
-                className={styles.amountBoxO}
+                InputLabelProps={{
+                    shrink: true,
+                }}
+                variant="filled"
                 value={amount}
                 onChange={handleAmountChange}
+                className={styles.customTextField}
             />
-            <p>Price</p>
-            <input
+            <TextField
+                id="filled-number"
+                label="Price"
                 type="number"
-                className={styles.priceBoxO}
+                InputLabelProps={{
+                    shrink: true,
+                }}
+                sx={{
+                    mt: 1,
+                }}
+                variant="filled"
                 value={price}
                 onChange={handlePriceChange}
+                className={styles.customTextField}
             />
-            <button className={styles.staOffering} onClick={handleStart}>
-                Start Offering
-            </button>
-            <button className={styles.stoOffering} onClick={handleStop}>
-                Stop Offering
-            </button>
+            <div className={styles.flexButton}>
+                <Button 
+                    variant="contained"
+                    onClick={handleStart}
+                    className={styles.button}
+                    sx={{ 
+                        width: { xs: '100%', sm: 'calc(50% - 8px)' }, 
+                        mt: 1,
+                        mr: { xs: 0, sm: 1 },                           
+                    }}>
+                        Start Offering
+                </Button>
+                <Button 
+                    variant="contained"
+                    onClick={handleStop}
+                    className={styles.button}
+                    sx={{                            
+                        width: { xs: '100%', sm: '50%' }, 
+                        mt: 1,                           
+                    }}>
+                        Stop Offering
+                </Button>
+            </div>
         </div>
+        
     );
 };
 

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const Offering = ({ web3, account, contract }) => {
@@ -10,11 +12,20 @@ const Offering = ({ web3, account, contract }) => {
         }
     };
     return (
-        <div>
-            <h1>Withdraw</h1>
-            <button className={styles.burn} onClick={handleWithdraw}>
-                Withdraw
-            </button>
+        <div className={styles.container}>
+                <h1>Withdraw</h1>
+                <div className={styles.flexButton}>
+                    <Button 
+                        variant="contained"
+                        onClick={handleWithdraw}
+                        className={styles.button}
+                        sx={{ 
+                            width: '100%', 
+                            mt: 1,
+                        }}>
+                            Withdraw
+                    </Button>
+                </div>
         </div>
     );
 };

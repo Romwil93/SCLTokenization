@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../styles/CompanyBox.module.css';
-import WhatshotIcon from '@mui/icons-material/Whatshot';import Web3 from 'web3';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
+import Web3 from 'web3';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -13,6 +14,8 @@ import Pause from '../components/Pause';
 import ChangePrice from '../components/ChangePrice';
 import Withdraw from '../components/Withdraw';
 import Announcement from '../components/Announcement';
+import PayDividends from '../components/PayDividends';
+
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -39,7 +42,7 @@ const CompanyBox = () => {
         setAccount(accounts[0]);
   
         // Load the smart contract
-        const contractAddress = '0x5bfcC7c3e81D40e73934BEc18C6032c6a769f791';
+        const contractAddress = '0x5b2Ad89fDba23B124590d303750F0EE82b84F3A5';
         const contract = new web3.eth.Contract(abi, contractAddress);
         setContract(contract);
         } else {
@@ -71,6 +74,7 @@ const CompanyBox = () => {
             <button className={styles.button} onClick={() => setSelectedOption('pauseUnpause')}><PauseIcon /> Pause/Unpause</button>
             <button className={styles.button} onClick={() => setSelectedOption('startStopOffering')}><PlayArrowIcon/> Start/Stop Offering</button>
             <button className={styles.button} onClick={() => setSelectedOption('changePrice')}><PriceChangeIcon /> Change Price</button>
+            <button className={styles.button} onClick={() => setSelectedOption('payDividends')}><PriceChangeIcon /> Dividends</button>
             <button className={styles.button} onClick={() => setSelectedOption('withdraw')}><GetAppIcon /> Withdraw</button>
             <button className={styles.button} onClick={() => setSelectedOption('announcement')}><AnnouncementIcon /> Announcement</button>
           </div>
@@ -101,6 +105,7 @@ const CompanyBox = () => {
             {selectedOption === 'pauseUnpause' && (<Pause web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'startStopOffering' && (<Offering web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'changePrice' && (<ChangePrice web3={web3} account={account} contract={contract} />)}
+            {selectedOption === 'payDividends' && (<PayDividends web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'withdraw' && (<Withdraw web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'announcement' && (<Announcement web3={web3} account={account} contract={contract} />)}
           </div>

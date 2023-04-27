@@ -1,16 +1,16 @@
 import React from 'react';
 import Header from '../components/Header';
-import CompanyBox from '../components/CompanyBox';
+import Company from '../components/Company';
 import Link from 'next/link';
 
-export default function Company() {
+export default function CompanyView() {
   return (
     <>
       <Header />
       <Link href="/">
         <button>Change to user view</button>
       </Link>
-      <CompanyBox />
+      <Company />
     </>  
   )
 }

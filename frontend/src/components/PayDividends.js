@@ -3,51 +3,52 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
-const Offering = ({ web3, account, contract }) => {
-    var [price, setPrice] = useState(0);
+const PayDividends = ({ web3, account, contract }) => {
+    var [amount, setAmount] = useState(0);
 
     const handleChange = (e) => {
-        setPrice(e.target.value);
+        setAmount(e.target.value);
     };
 
-    const handleSetPrice = async () => {
-        if (price < 0) return;
+    const handleSetAmount = async () => {
+        if (amount < 0) return;
         try {
-            price = web3.utils.toWei(price, 'ether');
-            await contract.methods.changePrice(price).send({ from: account });
+            amount = web3.utils.toWei(amount, 'ether');
+            await contract.methods.payDividends().send({ from: account, value: amount });
         } catch (err) {
             console.error(err);
         }
     };
+    
     return (
         <div className={styles.container}>
-                <h1>Change Price</h1>
+                <h1>Pay Dividends</h1>
                 <TextField
                     id="filled-number"
-                    label="Price"
+                    label="Amount"
                     type="number"
                     InputLabelProps={{
                         shrink: true,
                     }}
                     variant="filled"
-                    value={price}
+                    value={amount}
                     onChange={handleChange}
                     className={styles.customTextField}
                 />
                 <div className={styles.flexButton}>
                     <Button 
                         variant="contained"
-                        onClick={handleSetPrice}
+                        onClick={handleSetAmount}
                         className={styles.button}
                         sx={{ 
                             width: '100%', 
                             mt: 1,
                         }}>
-                            Change Price
+                            Pay out dividends
                     </Button>
                 </div>
         </div>
     );
 };
 
-export default Offering;
+export default PayDividends;

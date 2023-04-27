@@ -13,12 +13,42 @@
     border-radius: 25px;
 } 
 */
+.container1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 750px;
+    height: 70%;
+    max-height: 500px;
+    background: #006837;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
 
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.flexButton {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.customTextField {
+    background-color: white;
+}
+
+.customTextField:hover {
+    background-color: #eaebeb;
+}
 
 .rectangle {
     display: flex; 
     position: fixed;
-    width: 80%;
+    width: 70%;
     height: 60%;
     max-width: 850px;
     max-height: 600px;
@@ -30,17 +60,7 @@
     border-radius: 25px;
 }
 
-/* Media query for smartphones */
-@media only screen and (max-width: 767px) {
-    .rectangle {
-      width: 90%;
-      height: 80%;
-      border-radius: 15px;
-    }
-  }
-
 .blackBox {
-    position: absolute;
     width: 25%; /* Adjust the width as needed */
     height: 100%;
     background-color: black;
@@ -56,14 +76,12 @@
 }
 
 .button {
-    position: relative; 
-    width: 100%;
-    top: 10%;
-    background: black;
-    border: none;
-    cursor: pointer;
-    color: #D9D9D9;
-    text-align: left;
+    background-color: white;
+    color: black;
+}
+  
+.button:hover {
+    background-color: #eaebeb;
 }
 
 .amountBox {
@@ -157,11 +175,21 @@
     border-radius: 25px;
 }
 
+.announcement {
+    /* width: 80%; */
+}
+
+.send {
+
+}
+
 @media only screen and (max-width: 767px) {
     .rectangle {
-      width: 90%;
-      height: 80%;
-      border-radius: 15px;
+        display: flex;
+        flex-direction: row;
+        width: 90%;
+        height: 80%;
+        border-radius: 15px;
     }
 
     .blackBox {
@@ -169,7 +197,18 @@
     }
 
     .contentArea {
-        width: 100%;
-        left: 7.5%;
+        width: 90%;
     }
+
+    .announcement {
+
+    }
+
+    .send {
+
+    }
+}
+
+.customTextfield .MuiFilledInput-input {
+    background-color: white;
 }
