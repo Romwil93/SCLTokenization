@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
+import useWeb3 from '../hooks/useWeb3';
+import { useEthereumAddress } from '../contexts/EthereumAddressContext';
 import styles from '../styles/CompanyBox.module.css';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
@@ -20,7 +22,6 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import Web3 from 'web3';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -45,7 +46,7 @@ function ResponsiveDrawer(props) {
     setMobileOpen(!mobileOpen);
   };
 
-  const [selectedOption, setSelectedOption] = useState('Burn/Mint');
+  const [selectedOption, setSelectedOption] = useState('Offering');
 
   const iconMap = {
     'Burn/Mint': <WhatshotIcon />,
@@ -64,7 +65,9 @@ function ResponsiveDrawer(props) {
       <List>
         {['Burn/Mint', 'Pause/Unpause', 'Offering', 'Change Price', 'Dividends', 'Withdraw', 'Announcement'].map((text, index) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton onClick={() => setSelectedOption(text)}>
+            <ListItemButton onClick={() => {
+              setSelectedOption(text);
+            }}>
               <ListItemIcon sx={{ color: 'white' }}>
                 {iconMap[text]}
               </ListItemIcon>
@@ -78,36 +81,31 @@ function ResponsiveDrawer(props) {
 
   const container = typeof window !== 'undefined' ? () => window.document.body : undefined;
   
-  // implementation from CompanyBox.js
-  const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [contract, setContract] = useState(null);
+  const { web3, account, contract } = useWeb3();
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const loadWeb3AndBlockchainData = async () => {
-        if (window.ethereum) {
-          window.web3 = new Web3(window.ethereum);
-          await window.ethereum.enable();
-          const web3 = window.web3;
-          setWeb3(web3);
-    
-          // Load the current user's account
-          const accounts = await web3.eth.getAccounts();
-          setAccount(accounts[0]);
-    
-          // Load the smart contract
-          const contractAddress = '0x5b2Ad89fDba23B124590d303750F0EE82b84F3A5';
-          const contract = new web3.eth.Contract(abi, contractAddress);
-          setContract(contract);
-          } else {
-          window.alert('Please install MetaMask!');
-          }
-      };
-
-      loadWeb3AndBlockchainData();
+  const renderComponent = () => {
+    switch (selectedOption) {
+      case 'Burn/Mint':
+        return <BurnMint web3={web3} account={account} contract={contract} />;
+      case 'Pause/Unpause':
+        return <Pause web3={web3} account={account} contract={contract} />;
+      case 'Pause/Unpause':
+        return <Pause web3={web3} account={account} contract={contract} />;
+      case 'Offering':
+        return <Offering web3={web3} account={account} contract={contract} />;
+      case 'Change Price':
+        return <ChangePrice web3={web3} account={account} contract={contract} />;
+      case 'Dividends':
+        return <PayDividends web3={web3} account={account} contract={contract} />;
+      case 'Withdraw':
+        return <Withdraw web3={web3} account={account} contract={contract} />;
+      case 'Announcement':
+        return <Announcement web3={web3} account={account} contract={contract} />;
+      default:
+      return null;
     }
-  }, []);
+  };
+  
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -159,14 +157,7 @@ function ResponsiveDrawer(props) {
             <MenuIcon />
         </IconButton>
         <Toolbar />
-        {selectedOption === 'Burn/Mint' && (<BurnMint web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Pause/Unpause' && (<Pause web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Offering' && (<Offering web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Change Price' && (<ChangePrice web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Dividends' && (<PayDividends web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Withdraw' && (<Withdraw web3={web3} account={account} contract={contract} />)}
-        {selectedOption === 'Announcement' && (<Announcement web3={web3} account={account} contract={contract} />)}
-
+        {web3 && account && contract && renderComponent()}
       </Box>
     </Box>
   );
