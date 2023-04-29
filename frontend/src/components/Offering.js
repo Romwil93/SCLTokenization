@@ -36,7 +36,7 @@ const Offering = ({ web3, account, contract }) => {
 
     return (
         <div className={styles.container}>
-            <h1>Start/Stop Offering</h1>
+            <h1>Offering</h1>
             <TextField
                 id="filled-number"
                 label="Amount"
