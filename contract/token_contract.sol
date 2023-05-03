@@ -9,9 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract SCL_Equity_Token is ERC20, ERC20Burnable, Pausable, Ownable {
 
     string private tokenName = "Smart Contract Lab Token";
-    string private tokenSymbol = "SCL";
+    string private tokenSymbol = "SCLZ";
     uint8 private _decimals = 18;
-    uint private _initialTokenAmount = 100;
     uint public offeringPrice = 0;
     uint public offeringAmount = 0;
     bool public offering = false;
@@ -30,7 +29,13 @@ contract SCL_Equity_Token is ERC20, ERC20Burnable, Pausable, Ownable {
     modifier whenOffering {require(offering); _;}
     modifier onlyOwners {require(owners[msg.sender]); _;}
 
-    constructor() ERC20(tokenName, tokenSymbol) {owners[msg.sender] = true;}
+    constructor() ERC20(tokenName, tokenSymbol) {
+        owners[msg.sender] = true;
+        owners[0x5a88f1E531916b681b399C33F519b7E2E54b5213] = true; // Liam
+        owners[0x3082f89471245a689bdd60EC82e6c12da97531d7] = true; // Roman
+        owners[0xb3A5E267F04acF7804E22A8600081f8B854e7847] = true; // Laura
+        owners[0xF85F88412589949dBfD6a70c76417AdBcf358249] = true; // Patricia
+    }
 
     function addOwner(address _newOwner) public onlyOwners returns (bool) {
         owners[_newOwner] = true; return true;}
