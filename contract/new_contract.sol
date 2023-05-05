@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
 
@@ -7,71 +6,38 @@ import "./IERC20.sol";
 import "./extensions/IERC20Metadata.sol";
 import "../../utils/Context.sol";
 
-/**
- * @dev Implementation of the {IERC20} interface.
- *
- * This implementation is agnostic to the way tokens are created. This means
- * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {ERC20PresetMinterPauser}.
- *
- * TIP: For a detailed writeup see our guide
- * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
- * to implement supply mechanisms].
- *
- * The default value of {decimals} is 18. To change this, you should override
- * this function so it returns a different value.
- *
- * We have followed general OpenZeppelin Contracts guidelines: functions revert
- * instead returning `false` on failure. This behavior is nonetheless
- * conventional and does not conflict with the expectations of ERC20
- * applications.
- *
- * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
- * This allows applications to reconstruct the allowance for all accounts just
- * by listening to said events. Other implementations of the EIP may not emit
- * these events, as it isn't required by the specification.
- *
- * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
- * functions have been added to mitigate the well-known issues around setting
- * allowances. See {IERC20-approve}.
- */
+
 contract ERC20 is Context, IERC20, IERC20Metadata {
-    mapping(address => uint256) private _balances;
-
-    mapping(address => mapping(address => uint256)) private _allowances;
-
+    
     struct Data {
         uint tokenBalance;
         uint shareBalance;
-        uint fractionsBalance;
+        uint fractionalShareBalance;
         uint registrationHash;
         bool recoverable;
     }
-
+    
+    mapping(address => mapping(address => uint256)) private _allowances;
     mapping(address => Data) public registry;
-
     uint256 private _totalSupply;
     bool public paused;
     string private _name;
     string private _symbol;
-
+    address public corporation;
+    
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Registered(address indexed account, uint256 registrationHash);
+    event AskedForRecovery(address indexed account);
+    event Recovered(address indexed account);
+    
+    
     modifier whenUnpaused() {
-        require(paused, "ERC20: token is not paused");
-        _;
-    }
+        require(paused, "ERC20: token is not paused"); _;}
 
     modifier onlyOwner() {
-        require(msg.sender == corporation, "ERC20: only corporation can call this function");
-        _;
-    }
+        require(msg.sender == corporation, "ERC20: only corporation can call this function"); _;}
 
-    address public corporation;
-    /**
-     * @dev Sets the values for {name} and {symbol}.
-     *
-     * All two of these values are immutable: they can only be set once during
-     * construction.
-     */
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
@@ -79,58 +45,32 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         paused = false;
     }
 
-    /**
-     * @dev Returns the name of the token.
-     */
     function name() public view virtual override returns (string memory) {
         return _name;
     }
 
-    function pause() public {
+    function pause() public onlyOwner whenUnpaused {
         require(msg.sender == corporation, "ERC20: only corporation can pause");
         paused = true;
     }
 
-    function unpause() public {
+    function unpause() public onlyOwner {
         require(msg.sender == corporation, "ERC20: only corporation can unpause");
         paused = false;
     }
 
-    /**
-     * @dev Returns the symbol of the token, usually a shorter version of the
-     * name.
-     */
     function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
 
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5.05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the default value returned by this function, unless
-     * it's overridden.
-     *
-     * NOTE: This information is only used for _display_ purposes: it in
-     * no way affects any of the arithmetic of the contract, including
-     * {IERC20-balanceOf} and {IERC20-transfer}.
-     */
     function decimals() public view virtual override returns (uint8) {
         return 18;
     }
 
-    /**
-     * @dev See {IERC20-totalSupply}.
-     */
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
     }
-    // shares/tokens
-    /**
-     * @dev See {IERC20-balanceOf}.
-     */
+
     function balanceOf(address account) public view virtual override returns (uint256) {
         return registry[account].tokenBalance;
     }
@@ -139,122 +79,61 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return registry[account].shareBalance;
     }
 
-    function residualFractionalBalanceOf(address account) public view virtual override returns (uint256) {
-        return registry[account].residualBalance;
+    function fractionalShareBalanceOf(address account) public view virtual override returns (uint256) {
+        return registry[account].fractionalShareBalance;
     }
 
-    /**
-     * @dev See {IERC20-transfer}.
-     *
-     * Requirements:
-     *
-     * - `to` cannot be the zero address.
-     * - the caller must have a balance of at least `amount`.
-     */
-    function transfer(address to, uint256 amount) public virtual override whenPaused returns (bool) {
-        require (amount <= registry[account].tokenBalance, "ERC20: token balance is not enough");
-        _transfer(msg.sender, to, amount);
-        shares = amount % 1e18; // 2
-        fractions = amount mod 1e18; // 0.3
-        registry[msg.sender].shareBalance -= shares;
-        registry[msg.sender].fractionsBalance -= fractions;
-        registry[msg.sender].tokenBalance -= amount;
-        if (fractions > registry[msg.sender].fractionsBalance) {
+    function transfer(address to, uint256 amount) public virtual override whenUnpaused returns (bool) {
+        require (amount <= registry[msg.sender].tokenBalance, "Token balance is not enough");
+        shares = amount / 1e18;
+        fractions = amount % 1e18;
+
+        if (fractions > registry[msg.sender].fractionalShareBalance) {
             registry[msg.sender].shareBalance -= 1;
             registry[corporation].shareBalance += 1;
-            registry[msg.sender].fractionsBalance += 1e18;
-            registry[corporation].fractionalBalance -= 1e18;
+            registry[msg.sender].fractionalShareBalance += 1e18;
+            registry[corporation].fractionalShareBalance -= 1e18;
         }
-        registry[to].shareBalance += shares;
-        registry[to].fractionsBalance += fractions;
-        registry[to].tokenBalance += amount;
-        if (fractions < registry[to].fractionsBalance) {
+        registry[msg.sender].shareBalance -= shares;
+        registry[msg.sender].fractionalShareBalance -= fractions;
+        registry[msg.sender].tokenBalance -= amount;
+
+        if (fractions < registry[to].fractionalShareBalance) {
             registry[to].shareBalance += 1;
             registry[corporation].shareBalance -= 1;
-            registry[to].fractionsBalance -= 1e18;
-            registry[corporation].fractionalBalance += 1e18;
+            registry[to].fractionalShareBalance -= 1e18;
+            registry[corporation].fractionalShareBalance += 1e18;
         }
+        registry[to].shareBalance += shares;
+        registry[to].fractionalShareBalance += fractions;
+        registry[to].tokenBalance += amount;
+
         return true;
     }
 
-    /**
-     * @dev See {IERC20-allowance}.
-     */
     function allowance(address owner, address spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    /**
-     * @dev See {IERC20-approve}.
-     *
-     * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
-     * `transferFrom`. This is semantically equivalent to an infinite approval.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, amount);
         return true;
     }
 
-    /**
-     * @dev See {IERC20-transferFrom}.
-     *
-     * Emits an {Approval} event indicating the updated allowance. This is not
-     * required by the EIP. See the note at the beginning of {ERC20}.
-     *
-     * NOTE: Does not update the allowance if the current allowance
-     * is the maximum `uint256`.
-     *
-     * Requirements:
-     *
-     * - `from` and `to` cannot be the zero address.
-     * - `from` must have a balance of at least `amount`.
-     * - the caller must have allowance for ``from``'s tokens of at least
-     * `amount`.
-     */
-    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual override whenUnpaused returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
         return true;
     }
 
-    /**
-     * @dev Atomically increases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     */
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
 
-    /**
-     * @dev Atomically decreases the allowance granted to `spender` by the caller.
-     *
-     * This is an alternative to {approve} that can be used as a mitigation for
-     * problems described in {IERC20-approve}.
-     *
-     * Emits an {Approval} event indicating the updated allowance.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `spender` must have allowance for the caller of at least
-     * `subtractedValue`.
-     */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
@@ -262,61 +141,18 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
         }
-
         return true;
     }
 
-    /**
-     * @dev Moves `amount` of tokens from `from` to `to`.
-     *
-     * This internal function is equivalent to {transfer}, and can be used to
-     * e.g. implement automatic token fees, slashing mechanisms, etc.
-     *
-     * Emits a {Transfer} event.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `from` must have a balance of at least `amount`.
-     */
-    function _transfer(address from, address to, uint256 amount) internal virtual {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
-
-        _beforeTokenTransfer(from, to, amount);
-
-        uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - amount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
-            _balances[to] += amount;
-        }
-
-        emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(from, to, amount);
-    }
-
-    /** @dev Creates `amount` tokens and assigns them to `account`, increasing
-     * the total supply.
-     *
-     * Emits a {Transfer} event with `from` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     */
-    function _mint(address account, uint256 amount) internal virtual {
+    function _mint(address account, uint256 amount) internal virtual onlyOwner whenUnpaused {
         require(account != address(0), "ERC20: mint to the zero address");
 
         _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply += amount;
-        registry[corporation].shareBalance += amount;
-        registry[corporation].tokenBalance += amount * 1e18;
+        registry[corporation].shareBalance += amount / 1e18;
+        registry[corporation].tokenBalance += amount;
+        registry[corporation].fractionalShareBalance += amount % 1e18;
         unchecked {
             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
             _balances[account] += amount;
@@ -326,18 +162,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _afterTokenTransfer(address(0), account, amount);
     }
 
-    /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements:
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
-    function _burn(address account, uint256 amount) internal virtual {
+    function _burn(address account, uint256 amount) internal virtual  onlyOwner whenUnpaused {
         require(account != address(0), "ERC20: burn from the zero address");
 
         _beforeTokenTransfer(account, address(0), amount);
@@ -355,19 +180,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _afterTokenTransfer(account, address(0), amount);
     }
 
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
-     *
-     * This internal function is equivalent to `approve`, and can be used to
-     * e.g. set automatic allowances for certain subsystems, etc.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `owner` cannot be the zero address.
-     * - `spender` cannot be the zero address.
-     */
     function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
@@ -376,14 +188,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Approval(owner, spender, amount);
     }
 
-    /**
-     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
-     *
-     * Does not update the allowance amount in case of infinite allowance.
-     * Revert if not enough allowance is available.
-     *
-     * Might emit an {Approval} event.
-     */
     function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
@@ -394,65 +198,36 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         }
     }
 
-    /**
-     * @dev Hook that is called before any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * will be transferred to `to`.
-     * - when `from` is zero, `amount` tokens will be minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 
-    /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * has been transferred to `to`.
-     * - when `from` is zero, `amount` tokens have been minted for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens have been burned.
-     * - `from` and `to` are never both zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
     function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 
     function registerHash(bytes32 hash) public {
-        require(account != address(0), "ERC20: register to the zero address");
-        require(registry[msg.sender].registrationHash != 0, "ERC20: account already registered");
+        require(registry[msg.sender].registrationHash != 0, "Address already registered");
         registry[msg.sender].registrationHash = hash;
-        emit Register(account);
+        emit Registered(msg.sender, hash);
     }
 
-    function approveRecovery(address account) public onlyOwner {
+    function askForRecovery(address account) public payable {
         require(account != address(0), "ERC20: approveRecovery to the zero address");
         require(registry[account].registrationHash != 0, "ERC20: account must be registered");
+        require(msg.value >= 1e18, "You must pay at least 1 MATIC");
         registry[account].recoverable = true;
-        emit ApproveRecovery(account);
+        emit AskedForRecovery(account);
     }
 
-    function recover(address lostAddress, address newAddress) public onlyOwner {
-        require(lostAddress != address(0), "ERC20: lostAddress cannot be the zero address");
-        require(newAddress != address(0), "ERC20: newAddress cannot be the zero address");
-        require(lostAddress != newAddress, "ERC20: lostAddress cannot be the same as newAddress");
-        require(_balances[lostAddress] > 0, "ERC20: lostAddress must have a balance greater than 0");
-        require(registry[lostAddress].registrationHash != 0, "ERC20: lostAddress must be registered");
-        require(registry[newAddress].tokenBalance == 0, "ERC20: newAddress must be registered");
+    function recover(address lostAddress, address newAddress) public onlyOwner whenUnpaused {
+        require(lostAddress != address(0), "Invalid lost address");
+        require(newAddress != address(0), "Invalid new address");
+        require(lostAddress != newAddress, "Lost address cannot be the same as new address");
+        require(registry[lostAddress].registrationHash != 0, "Lost address must be registered");
+        require(registry[newAddress].tokenBalance == 0, "New address must be registered");
+        require(registry[lostAddress].recoverable, "Lost address must be recoverable");
 
         registry[newAddress] = registry[lostAddress];
-
+        registry[newAddress].recoverable = false;
         registry[newAddress] = 0;
 
-        emit Transfer(lostAddress, newAddress, _balances[newAddress]);
+        emit Recovery(lostAddress, newAddress, _balances[newAddress]);
     }
-
 }
