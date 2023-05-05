@@ -16,13 +16,6 @@ import Withdraw from '../components/Withdraw';
 import Announcement from '../components/Announcement';
 import PayDividends from '../components/PayDividends';
 
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-
-
-
-
 const CompanyBox = () => {
   const [selectedOption, setSelectedOption] = useState('burnMint');  
   const [web3, setWeb3] = useState(null);
@@ -79,28 +72,6 @@ const CompanyBox = () => {
             <button className={styles.button} onClick={() => setSelectedOption('announcement')}><AnnouncementIcon /> Announcement</button>
           </div>
           <div className={styles.contentArea}>
-          {/* <Button
-            id="basic-button"
-            aria-controls={open ? 'basic-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-            onClick={handleClick}
-          >
-            Dashboard
-          </Button>
-          <Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-          >
-            <MenuItem onClick={handleClose}>Profile</MenuItem>
-            <MenuItem onClick={handleClose}>My account</MenuItem>
-            <MenuItem onClick={handleClose}>Logout</MenuItem>
-          </Menu> */}
             {selectedOption === 'burnMint' && (<BurnMint web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'pauseUnpause' && (<Pause web3={web3} account={account} contract={contract} />)}
             {selectedOption === 'startStopOffering' && (<Offering web3={web3} account={account} contract={contract} />)}

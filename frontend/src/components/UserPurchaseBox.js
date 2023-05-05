@@ -10,6 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import useWeb3 from '../hooks/useWeb3';
 
 
+
 const UserPurchaseBox = () => {
   const { web3, account, contract } = useWeb3();
 
@@ -73,6 +74,7 @@ const UserPurchaseBox = () => {
   
   return (
     <div className={styles.container1}>
+      <div className={styles.rectangle}>
         <div className={styles.name}>
           <h1>Company Name AG</h1>
         </div>
@@ -95,6 +97,17 @@ const UserPurchaseBox = () => {
           <img src="/CurSelector1.svg" alt="Logo" className={styles.CurSelector1} />
         </div>
         <button onClick={() => buyTokens(amountInMatic)} className={styles.buy}>Buy</button>
+        <Button 
+          variant="contained"
+          onClick={() => buyTokens(amountInMatic)}
+          className={styles.button}
+          sx={{                            
+              width: { xs: '100%', sm: '50%' }, 
+              mt: 1,                           
+          }}>
+              Stop Offering
+        </Button>
+      </div>
     </div>
   );
 };

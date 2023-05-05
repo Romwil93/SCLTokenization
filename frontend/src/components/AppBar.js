@@ -16,7 +16,7 @@ import styles from '../styles/header.module.css';
 import Link from 'next/link';
 
 
-const pages = ['Investors', 'Companies', 'Registration'];
+const pages = ['Investors', 'Companies', 'Register'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
