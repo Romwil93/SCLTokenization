@@ -8,6 +8,7 @@ import { styled } from '@mui/system';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import useWeb3 from '../hooks/useWeb3';
+import Balance from './Balance';
 
 
 
@@ -46,7 +47,8 @@ const UserPurchaseBox = () => {
     if (web3 && account && contract) {
       // Call the buyTokens function from your smart contract
       console.log('Buying tokens...');
-      await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(amountInMatic.toString(), 'ether') });
+      const roundedNumber = parseFloat(amountInMatic.toFixed(18));
+      await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(roundedNumber.toString(), 'ether') });
     } else {
       window.alert('Please connect to MetaMask and load the smart contract.');
     }
@@ -75,38 +77,47 @@ const UserPurchaseBox = () => {
   return (
     <div className={styles.container1}>
       <div className={styles.rectangle}>
-        <div className={styles.name}>
-          <h1>Company Name AG</h1>
-        </div>
-        <div>
-          <input
-            type="number"
-            value={amountInMatic}
-            onChange={(e) => setamountInMatic(e.target.value)}
-            className={styles.box0}
-          />
-          <img src="/CurSelector.svg" alt="Logo" className={styles.CurSelector0} />
-        </div>
-        <div>
-          <input
-            type="number"
-            value={amountInTokens}
-            onChange={(e) => setAmountInTokens(e.target.value)}
-            className={styles.box1}
-          />
-          <img src="/CurSelector1.svg" alt="Logo" className={styles.CurSelector1} />
-        </div>
-        <button onClick={() => buyTokens(amountInMatic)} className={styles.buy}>Buy</button>
+        <h1>Company Name AG</h1>
+        <Balance web3={web3} account={account} contract={contract} />
+        <TextField
+          id="filled-number"
+          label="MATIC"
+          type="number"
+          InputLabelProps={{
+              shrink: true,
+          }}
+          variant="filled"
+          value={amountInMatic}
+          onChange={(e) => setamountInMatic(e.target.value)}
+          className={styles.customTextField}
+        />
+        <TextField
+          id="filled-number"
+          label="SCL"
+          type="number"
+          InputLabelProps={{
+              shrink: true,
+          }}
+          variant="filled"
+          value={amountInTokens}
+          onChange={(e) => setAmountInTokens(e.target.value)}
+          className={styles.customTextField}
+          sx={{
+            mt: 1,
+          }}
+        />
+        <div className={styles.flexButton}>
         <Button 
           variant="contained"
           onClick={() => buyTokens(amountInMatic)}
           className={styles.button}
           sx={{                            
-              width: { xs: '100%', sm: '50%' }, 
+              width: '100%',
               mt: 1,                           
           }}>
-              Stop Offering
+          Buy
         </Button>
+        </div>
       </div>
     </div>
   );

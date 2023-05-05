@@ -14,10 +14,20 @@
     border-radius: 25px;
 }
 
+
 .rectangle {
     display: flex;
     flex-direction: column;
-    border-radius: 15px;
+    margin: 7.5%;
+}
+
+.flexButton {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.customTextField {
+    background-color: white;
 }
 
 .button {
