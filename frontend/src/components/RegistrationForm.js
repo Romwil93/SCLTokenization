@@ -161,7 +161,7 @@ const RegistrationForm = () => {
               </Select>
             </FormControl>
           </div>
-          <Button className={styles.button} type="submit" variant="contained" sx={{ width: '100%', mt: 2 }}>
+          <Button className={styles.button} type="submit" variant="contained" sx={{ width: '100%', mt: 2, mb: 2 }}>
             Register
           </Button>
         </form>
