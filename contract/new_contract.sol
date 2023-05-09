@@ -2,21 +2,23 @@
 pragma solidity ^0.8.0;
 
 contract ERC20 {
-    struct Data {
-    uint256 tokenBalance;
-    uint256 shareBalance;
-    uint256 fractionalPartOfTokenBalance; // Updated
-    bytes32 registrationHash;
-    bool recoverable;
+    struct InvestorData {
+        uint256 tokenBalance;
+        uint256 shareBalance;
+        uint256 fractionalPartOfTokenBalance; // Updated
+        bytes32 registrationHash;
+        bool recoverable;
 }
-    mapping(address => Data) public registry;
+    mapping(address => InvestorData) public registry;
     mapping(address => mapping(address => uint256)) private _allowances;
-    uint256 private _totalSupply;
+    uint256 public _totalSupply; // Total Supply of Tokens
+    uint256 public constant ONE_SHARE = 1 ether; // 1 Share corresponds to 1e
+
     bool public paused;
     string private _name;
     string private _symbol;
     address public corporation;
-
+    
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Registered(address indexed account, bytes32 registrationHash);
@@ -45,12 +47,10 @@ contract ERC20 {
     }
 
     function pause() public onlyOwner whenUnpaused {
-        require(msg.sender == corporation, "ERC20: only corporation can pause");
         paused = true;
     }
 
     function unpause() public onlyOwner {
-        require(msg.sender == corporation, "ERC20: only corporation can unpause");
         paused = false;
     }
 
@@ -80,14 +80,14 @@ contract ERC20 {
 
     function transfer(address to, uint256 amount) public whenUnpaused returns (bool) {
         require(amount <= registry[msg.sender].tokenBalance, "Token balance is not enough");
-        uint256 shares = amount / 1e18;
-        uint256 fractions = amount % 1e18;
+        uint256 shares = amount / ONE_SHARE;
+        uint256 fractions = amount % ONE_SHARE;
 
         if (fractions > registry[msg.sender].fractionalPartOfTokenBalance) {
             registry[msg.sender].shareBalance -= 1;
             registry[corporation].shareBalance += 1;
-            registry[msg.sender].fractionalPartOfTokenBalance += 1e18;
-            registry[corporation].fractionalPartOfTokenBalance -= 1e18;
+            registry[msg.sender].fractionalPartOfTokenBalance += ONE_SHARE;
+            registry[corporation].fractionalPartOfTokenBalance -= ONE_SHARE;
         }
         registry[msg.sender].shareBalance -= shares;
         registry[msg.sender].fractionalPartOfTokenBalance -= fractions;
@@ -96,8 +96,8 @@ contract ERC20 {
         if (fractions < registry[to].fractionalPartOfTokenBalance) {
             registry[to].shareBalance += 1;
             registry[corporation].shareBalance -= 1;
-            registry[to].fractionalPartOfTokenBalance -= 1e18;
-            registry[corporation].fractionalPartOfTokenBalance += 1e18;
+            registry[to].fractionalPartOfTokenBalance -= ONE_SHARE;
+            registry[corporation].fractionalPartOfTokenBalance += ONE_SHARE;
     }
         registry[to].shareBalance += shares;
         registry[to].fractionalPartOfTokenBalance += fractions;
@@ -146,12 +146,11 @@ function decreaseAllowance(address spender, uint256 subtractedValue) public retu
 function _mint(address account, uint256 amount) internal virtual onlyOwner whenUnpaused {
     require(account != address(0), "ERC20: mint to the zero address");
 
-    _beforeTokenTransfer(address(0), account, amount);
-
     _totalSupply += amount;
-    registry[corporation].shareBalance += amount / 1e18;
+    registry[corporation].shareBalance += amount / ONE_SHARE;
     registry[corporation].tokenBalance += amount;
-    registry[corporation].fractionalPartOfTokenBalance += amount % 1e18;
+    registry[corporation].fractionalPartOfTokenBalance += amount % ONE_SHARE;
+   
     emit Transfer(address(0), account, amount);
 }
 
@@ -186,34 +185,27 @@ function _transfer(address from, address to, uint256 amount) internal virtual {
 }
 
 function registerHash(bytes32 hash) public {
-    require(registry[msg.sender].registrationHash == 0, "Address already registered");
     registry[msg.sender].registrationHash = hash;
     emit Registered(msg.sender, hash);
 }
 
-function askForRecovery(address account) public {
-    require(registry[account].registrationHash != 0, "Address not registered");
-    require(!registry[account].recoverable, "Recovery already requested");
+function askForRecovery(address account) public payable {
+    require(account != address(0), "ERC20: approveRecovery to the zero address");
+    require(registry[account].registrationHash != 0, "ERC20: account must be registered");
     registry[account].recoverable = true;
     emit AskedForRecovery(account);
 }
 
-function recover(address from, address to) public onlyOwner {
-    require(registry[from].recoverable, "Address not marked for recovery");
-    registry[to].tokenBalance += registry[from].tokenBalance;
-    registry[to].shareBalance += registry[from].shareBalance;
-    registry[to].fractionalPartOfTokenBalance += registry[from].fractionalPartOfTokenBalance;
-    registry[to].registrationHash = registry[from].registrationHash;
-
-    registry[from].tokenBalance = 0;
-    registry[from].shareBalance = 0;
-    registry[from].fractionalPartOfTokenBalance = 0;
-    registry[from].registrationHash = 0;
-    registry[from].recoverable = false;
-
-    emit Recovered(from);
+function recover(address oldAddress, address newAddress) public onlyOwner whenUnpaused {
+    require(oldAddress != newAddress, "Lost address cannot be the same as new address");
+    require(registry[oldAddress].registrationHash != 0, "Lost address must be registered");
+    require(registry[newAddress].tokenBalance == 0, "New address must be registered");
+    require(registry[newAddress].shareBalance == 0, "New address must be registered");
+    require(registry[newAddress].fractionalPartOfTokenBalance == 0, "New address must be registered");
+    require(registry[oldAddress].recoverable, "Address not marked for recovery");
+    registry[newAddress] = registry[oldAddress];
+    delete registry[oldAddress];
+    emit Recovered(oldAddress);
 }
-
-function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 }
 
