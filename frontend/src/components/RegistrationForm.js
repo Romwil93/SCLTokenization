@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ref, set, auth, database } from '../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { ref, set, database, push } from '../firebase';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import styles from '../styles/Registration.module.css';
@@ -13,47 +12,39 @@ import FormControl from '@mui/material/FormControl';
 const RegistrationForm = () => {
   const [type, setType] = useState(''); // ['natural Person', 'legal entity']
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [surname, setSurname] = useState('');
   const [error, setError] = useState(null);
   const [country, setCountry] = useState('');
   const [address, setAddress] = useState('');
   const [postCode, setPostcode] = useState('');
   const [city, setCity] = useState('');
 
-
-
   const typeOptions = ['Natural Person', 'Legal Entity'];
   const countries = ['Switzerland', 'United States', 'Canada', 'United Kingdom', 'Australia']; // Add more countries as needed
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      // Create a new user with the provided email and password
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // You can add your own logic to store the user's data in your database.
-      // For example, you could create a new user in the database with the email, password, and fullName.
-      const newUserRef = ref(database, 'users/' + user.uid);
-      await set(newUserRef, { email, fullName, type, country, address, postCode });
-
-      setEmail('');
-      setPassword('');
+      // Create a new user in the database with a unique ID
+      const newUserRef = ref(database, 'users/');
+      const newUser = push(newUserRef);
+      await set(newUser, { type, fullName, email, address, postCode, city, country });
+  
+      setType('');
       setFullName('');
+      setEmail('');
       setCountry('');
       setAddress('');
       setPostcode('');
-      setCity('')
+      setCity('');
+      setCountry('');
       setError(null);
     } catch (error) {
-      setError(error.message);
+        setError(error.message);
     }
   };
+  
 
   return (
     <div className={styles.container1}>
