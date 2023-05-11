@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const PayDividends = ({ web3, account, contract }) => {
-    var [amount, setAmount] = useState(0);
+    let [amount, setAmount] = useState(0);
 
     const handleChange = (e) => {
         setAmount(e.target.value);
