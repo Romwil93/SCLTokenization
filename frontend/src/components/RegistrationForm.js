@@ -23,22 +23,79 @@ const RegistrationForm = () => {
   const [postCode, setPostcode] = useState('');
   const [city, setCity] = useState('');
   const [differentAccount, setDifferentAccount] = useState('');
+  const [nameError, setNameError] = useState(null);
 
   useEffect(() => {
     setDifferentAccount(account || '');
   }, [account]);
+
+  const checkName = async (name) => {
+    const axios = require('axios');
+    let data = JSON.stringify({
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Return a number in the range of 0 and 1, based on the likely hood that below name is fictional or real - 1 being fictional, 0 being real. It doesn't matter if you are uncertain, just give me a number, and only a number! \n" + name
+        }
+      ],
+      "max_tokens": 3,
+      "temperature": 0.5,
+    });
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://api.openai.com/v1/chat/completions',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${apiKey}`
+      },
+      data : data
+    };
+
+    try {
+      const response = await axios.request(config);
+      const prob = JSON.stringify(response.data['choices'][0]['message']['content']);
+      // console.log(prob);
+      return JSON.stringify(prob);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleNameBlur = async (e) => {
+    const name = e.target.value;
+  
+    var result = await checkName(name);
+    result = result.replace(/"/g, ''); // Remove extra quotes
+    result = result.replace(/\\/g, '').replace(/"/g, ''); // Remove backslashes and quotes
+    var floatResult = parseFloat(result); // Convert to float
+    console.log(floatResult);
+
+    if (result > 0.6) {
+      setNameError("This name appears to be fictional. Please use your real name.");
+    } else {
+      setNameError(null);
+    }
+  };
 
   const typeOptions = ['Natural Person', 'Legal Entity'];
   const countries = ['Switzerland', 'United States', 'Canada', 'United Kingdom', 'Australia']; // Add more countries as needed
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent form submission if nameError is not null
+    if (nameError) {
+      return;
+    }
   
     try {
       // Create a new user in the database with a unique ID
       const newUserRef = ref(database, 'users/');
       const newUser = push(newUserRef);
-      await set(newUser, { type, fullName, email, address, postCode, city, country, differentAccount });  
+      await set(newUser, { type, fullName, email, address, postCode, city, country, differentAccount });
   
       setType('');
       setFullName('');
@@ -89,6 +146,9 @@ const RegistrationForm = () => {
               label="Name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              onBlur={handleNameBlur}
+              error={!!nameError}
+              helperText={nameError}
               className={styles.customTextField}
               sx={{ width: '100%' }}
             />

@@ -40,7 +40,7 @@ const StatusBar = () => {
         justifyContent: 'space-around',
     }}>
         <p>{`Current Price: ${tokenPrice}`}</p>
-        <p>{`Current Offer: ${currentOffer}`}</p>
+        <p>{`Available shares for purchase: ${currentOffer}`}</p>
     </div>
     );
     };
