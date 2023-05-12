@@ -106,6 +106,7 @@ const RegistrationForm = () => {
       setCity('');
       setCountry('');
       setError(null);
+      setNameError(null);
     } catch (error) {
         setError(error.message);
     }
