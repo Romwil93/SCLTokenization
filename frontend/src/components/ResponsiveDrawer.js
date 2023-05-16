@@ -18,6 +18,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
@@ -154,7 +155,7 @@ function ResponsiveDrawer(props) {
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: 'none' }}}
           >
-            <MenuIcon />
+          <DisplaySettingsIcon sx={{ color: 'white' }} />
         </IconButton>
         <Toolbar />
         {web3 && account && contract && renderComponent()}
