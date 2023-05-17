@@ -52,7 +52,6 @@
         flex-direction: row;
         width: 90%;
         height: 80%;
-        border-radius: 15px;
     }
 
     .blackBox {
@@ -60,7 +59,7 @@
     }
 
     .contentArea {
-        width: 90%;
+        width: 100%;
     }
 }
 

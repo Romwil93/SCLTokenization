@@ -109,7 +109,7 @@ function ResponsiveDrawer(props) {
   
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', width: '100%' }}>
       <CssBaseline />
       <Box
         component="nav"
