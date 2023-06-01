@@ -19,9 +19,11 @@ export default function BasicTable({ web3, account, contract }) {
 
 
     useEffect(() => {
+        let eventSubscription;
+    
         const fetchTokenBalance = async () => {
           if (!account || !contract) return;
-      
+    
           try {
             const balance = await contract.methods.balanceOf(account).call();
             const tokenBal = balance / 10 ** 18;
@@ -35,11 +37,29 @@ export default function BasicTable({ web3, account, contract }) {
             console.error('Error fetching token balance:', error);
           }
         };
-      
-        fetchTokenBalance();
+    
+        if (contract && account) {
+            fetchTokenBalance();
+    
+            eventSubscription = contract.events.Transfer({
+                filter: {to: account},
+                fromBlock: 0
+                }, (error, event) => {
+                    if (error) console.error('Error on event', error);
+                    else fetchTokenBalance();
+            });
+        }
+    
+        return () => {
+          if (eventSubscription) {
+            eventSubscription.unsubscribe((error, success) => {
+              if (error) console.error('Failed to unsubscribe', error);
+              else console.log('Unsubscribed successfully', success);
+            });
+          }
+        }
     }, [account, contract]);
-      
-
+    
 
     const truncateAddress = (address) => {
         if (!address) return '';

@@ -14,7 +14,7 @@ const BurnMint = ({ web3, account, contract }) => {
     const handleBurn = async () => {
         if (amount <= 0) return;
         try {
-            await contract.methods.burn(amount).send({ from: account });
+            await contract.methods.burn(account, amount).send({ from: account });
         } catch (err) {
             console.error(err);
         }

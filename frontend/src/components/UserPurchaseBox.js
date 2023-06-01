@@ -54,15 +54,6 @@ const UserPurchaseBox = () => {
     }
   };
 
-  const CustomButton = styled(Button)({
-    backgroundColor: '#D9D9D9;',
-    color: '#000000',
-    '&:hover': {
-      backgroundColor: '#D9D9D8',
-    },
-    // Add any other custom styles here
-  });
-
   const currencies = [
     {
       value: 'MATIC',

@@ -18,33 +18,35 @@ import PayDividends from '../components/PayDividends';
 
 const CompanyBox = () => {
   const [selectedOption, setSelectedOption] = useState('burnMint');  
-  const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [contract, setContract] = useState(null);
+  // const [web3, setWeb3] = useState(null);
+  // const [account, setAccount] = useState(null);
+  // const [contract, setContract] = useState(null);
+  const { web3, account, contract } = useWeb3();
 
-  useEffect(() => {
-    const loadWeb3AndBlockchainData = async () => {
-      if (window.ethereum) {
-        window.web3 = new Web3(window.ethereum);
-        await window.ethereum.enable();
-        const web3 = window.web3;
-        setWeb3(web3);
-  
-        // Load the current user's account
-        const accounts = await web3.eth.getAccounts();
-        setAccount(accounts[0]);
-  
-        // Load the smart contract
-        const contractAddress = '0x5b2Ad89fDba23B124590d303750F0EE82b84F3A5';
-        const contract = new web3.eth.Contract(abi, contractAddress);
-        setContract(contract);
-        } else {
-        window.alert('Please install MetaMask!');
-        }
-    };
 
-    loadWeb3AndBlockchainData();
-  }, []);
+  // useEffect(() => {
+  //   const loadWeb3AndBlockchainData = async () => {
+  //     if (window.ethereum) {
+  //       window.web3 = new Web3(window.ethereum);
+  //       await window.ethereum.enable();
+  //       const web3 = window.web3;
+  //       setWeb3(web3);
+  
+  //       // Load the current user's account
+  //       const accounts = await web3.eth.getAccounts();
+  //       setAccount(accounts[0]);
+  
+  //       // Load the smart contract
+  //       const contractAddress = '0x5b2Ad89fDba23B124590d303750F0EE82b84F3A5';
+  //       const contract = new web3.eth.Contract(abi, contractAddress);
+  //       setContract(contract);
+  //       } else {
+  //       window.alert('Please install MetaMask!');
+  //       }
+  //   };
+
+  //   loadWeb3AndBlockchainData();
+  // }, []);
 
   const handleMenuClick = (option) => {
     setSelectedOption(option);
