@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -8,32 +8,46 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SCL_Equity_Token is ERC20, ERC20Burnable, Pausable, Ownable {
 
-    string private tokenName = "SCL_Token";
-    string private tokenSymbol = "SCL";
+    string private tokenName = "Smart Contract Lab Token";
+    string private tokenSymbol = "SCLZ";
     uint8 private _decimals = 18;
-    uint private _initialTokenAmount = 100;
     uint public offeringPrice = 0;
     uint public offeringAmount = 0;
     bool public offering = false;
+    address[] private investorsList;
     mapping(string => address) private identification;
     mapping(address => string) private reverseIdentification;
     mapping(string => bool) private availableCodes;
-    mapping(address => address) public recoveryAddresses;
-    mapping(address => string) public declaredLost;
+    mapping(address => address) private recoveryAddresses;
+    mapping(address => string) private declaredLost;
+    mapping(address => bool) private owners;
     event _Announcement(uint date, string announcement);
     event RecoveryAddressSet(address _address, address _recoveryAddress);
     event AddressDeclaredLost(string _identifier, address _lostAddress);
     event InvestorRegistered(string _identifier, address _address);
     modifier onlyRegistered {require(bytes(reverseIdentification[msg.sender]).length != 0); _;}
     modifier whenOffering {require(offering); _;}
+    modifier onlyOwners {require(owners[msg.sender]); _;}
 
-    constructor() ERC20(tokenName, tokenSymbol) {_mint(msg.sender, _initialTokenAmount * 10 ** _decimals);}
+    constructor() ERC20(tokenName, tokenSymbol) {
+        owners[msg.sender] = true;
+        owners[0x5a88f1E531916b681b399C33F519b7E2E54b5213] = true; // Liam
+        owners[0x3082f89471245a689bdd60EC82e6c12da97531d7] = true; // Roman
+        owners[0xb3A5E267F04acF7804E22A8600081f8B854e7847] = true; // Laura
+        owners[0xF85F88412589949dBfD6a70c76417AdBcf358249] = true; // Patricia
+    }
 
-    function pause() public onlyOwner {_pause();}
+    function addOwner(address _newOwner) public onlyOwners returns (bool) {
+        owners[_newOwner] = true; return true;}
 
-    function unpause() public onlyOwner {_unpause();}
+    function removeOwner(address _oldOwner) public onlyOwners returns (bool) {
+        owners[_oldOwner] = false; return true;}
 
-    function approveCode(string memory _code) public onlyOwner returns (bool) {
+    function pause() public onlyOwners {_pause();}
+
+    function unpause() public onlyOwners {_unpause();}
+
+    function approveCode(string memory _code) public onlyOwners returns (bool) {
         availableCodes[_code] = true;
         return true;}
 
@@ -44,44 +58,57 @@ contract SCL_Equity_Token is ERC20, ERC20Burnable, Pausable, Ownable {
         emit InvestorRegistered(_code, msg.sender);
         return true;}
 
-    function lookUpIdentifier(string memory _identifier) public onlyOwner view returns (address) {
+    function lookUpIdentifier(string memory _identifier) public onlyOwners view returns (address) {
         require(identification[_identifier] != address(0), "This code is not assigned.");
         return identification[_identifier];}
 
-    function lookUpWallet(address _address) public onlyOwner view returns (string memory) {
+    function lookUpWallet(address _address) public onlyOwners view returns (string memory) {
         require(bytes(reverseIdentification[_address]).length != 0, "This wallet is not registered.");
         return reverseIdentification[_address];}
 
-    function startOffering(uint _price, uint _amount) public onlyOwner returns (bool) {
+    function startOffering(uint _price, uint _amount) public onlyOwners returns (bool) {
         offeringPrice = _price; offering = true; offeringAmount = _amount * 10 ** _decimals;
         return true;}
 
-    function stopOffering() public onlyOwner returns (bool) {
+    function changePrice(uint _price) public onlyOwners returns (bool) {
+        offeringPrice = _price; return true;}
+
+    function changeAmount(uint _amount) public onlyOwners returns (bool) {
+        offeringAmount = _amount * 10 ** _decimals; return true;}
+
+    function stopOffering() public onlyOwners returns (bool) {
         offeringPrice = 0; offering = false; return true;}
 
     function buyTokens() public payable whenOffering returns (uint) {
-        uint _amount = msg.value / offeringPrice;
-        if (_amount > offeringAmount) {
+        uint _buyAmount = msg.value * 10 ** 18 / offeringPrice;
+        if (_buyAmount > offeringAmount) {
             uint repayment = (msg.value - (offeringAmount * offeringPrice));
             payable(msg.sender).transfer(repayment);
-            _amount = offeringAmount;
+            _buyAmount = offeringAmount;
             stopOffering();}
-        _mint(msg.sender, _amount);
-        offeringAmount -= _amount;
-        return _amount;}
+        _mint(msg.sender, _buyAmount);
+        offeringAmount -= _buyAmount;
+        return _buyAmount;}
 
-    function withdraw() public onlyOwner returns (bool) {
+    function withdraw() public onlyOwners returns (bool) {
         payable(msg.sender).transfer(address(this).balance);
         return true;}
 
-    function mint(address to, uint256 amount) public onlyOwner {_mint(to, amount);}
+    function payDividends() public payable onlyOwners returns (bool) { // we need to check divisibility
+        uint _amountPerToken = msg.value * 10 ** 18 / totalSupply();
+        for (uint i = 0; i < investorsList.length; i++) {
+            uint _dividend = balanceOf(investorsList[i]) * _amountPerToken / 10 ** 18;
+            payable(investorsList[i]).transfer(_dividend);}
+        return true;}
 
-    function burn(uint256 amount) public onlyOwner override {super.burn(amount);}
+    function mint(address to, uint256 amount) public onlyOwners {_mint(to, amount * 10 ** 18);}
+
+    function burn(uint256 amount) public onlyOwners override {super.burn(amount);}
 
     function burnFrom(address, uint256) public view override onlyOwner {
         revert("The burnFrom-function has been disabled.");}
 
-    function renounceOwnership() public view override onlyOwner {
+    function renounceOwnership() public view override onlyOwners {
         revert("The renounceOwnership-function has been disabled");}
 
     function decimals() public view override returns (uint8) {return _decimals;}
@@ -89,7 +116,7 @@ contract SCL_Equity_Token is ERC20, ERC20Burnable, Pausable, Ownable {
     function _beforeTokenTransfer(address _from, address _to, uint256 _amount) internal whenNotPaused override {
         super._beforeTokenTransfer(_from, _to, _amount);}
 
-    function announcement(string memory _announcement) public onlyOwner returns(bool) {
+    function announcement(string memory _announcement) public onlyOwners returns(bool) {
         emit _Announcement(block.timestamp, _announcement); return true;}
 
     function setRecoveryAddress(address _recoveryAddress) external {
