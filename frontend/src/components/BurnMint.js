@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const BurnMint = ({ web3, account, contract }) => {
-    const [amount, setAmount] = useState(0);
+    var [amount, setAmount] = useState(0);
 
     const handleChange = (e) => {
         setAmount(e.target.value);
@@ -14,7 +14,8 @@ const BurnMint = ({ web3, account, contract }) => {
     const handleBurn = async () => {
         if (amount <= 0) return;
         try {
-            await contract.methods.burn(account, amount).send({ from: account });
+            amount = web3.utils.toWei(amount, 'ether');
+            await contract.methods.burn(amount).send({ from: account });
         } catch (err) {
             console.error(err);
         }
@@ -23,6 +24,7 @@ const BurnMint = ({ web3, account, contract }) => {
     const handleMint = async () => {
         if (amount <= 0) return;
         try {
+            amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.mint(account, amount).send({ from: account });
         } catch (err) {
             console.error(err);

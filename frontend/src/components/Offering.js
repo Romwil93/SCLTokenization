@@ -4,8 +4,8 @@ import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const Offering = ({ web3, account, contract }) => {
-    const [amount, setAmount] = useState(0);
-    var [price, setPrice] = useState(0);
+    let [amount, setAmount] = useState(0);
+    let [price, setPrice] = useState(0);
 
 
     const handleAmountChange = (e) => {
@@ -20,6 +20,7 @@ const Offering = ({ web3, account, contract }) => {
         if (amount <= 0 || price < 0) return;
         try {
             price = web3.utils.toWei(price, 'ether');
+            amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.startOffering(price, amount).send({ from: account });
         } catch (err) {
             console.error(err);
