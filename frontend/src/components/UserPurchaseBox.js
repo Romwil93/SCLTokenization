@@ -53,17 +53,6 @@ const UserPurchaseBox = () => {
       window.alert('Please connect to MetaMask and load the smart contract.');
     }
   };
-
-  const currencies = [
-    {
-      value: 'MATIC',
-      label: '$',
-    },
-    {
-      value: 'SCL',
-      label: '€',
-    },
-  ];
   
   return (
     <div className={styles.container1}>
@@ -98,16 +87,16 @@ const UserPurchaseBox = () => {
           }}
         />
         <div className={styles.flexButton}>
-        <Button 
-          variant="contained"
-          onClick={() => buyTokens(amountInMatic)}
-          className={styles.button}
-          sx={{                            
-              width: '100%',
-              mt: 1,                           
-          }}>
-          Buy
-        </Button>
+          <Button 
+            variant="contained"
+            onClick={() => buyTokens(amountInMatic)}
+            className={styles.button}
+            sx={{                            
+                width: '100%',
+                mt: 1,                           
+            }}>
+            Buy
+          </Button>
         </div>
       </div>
     </div>
