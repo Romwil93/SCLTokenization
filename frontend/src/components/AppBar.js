@@ -48,7 +48,7 @@ function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
-    if (account == "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
+    if (account != "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
         return (
             <AppBar position="static" color="transparent">
                 <Container maxWidth="xl">

@@ -23,7 +23,7 @@ const useWeb3 = () => {
         setEthereumAddress(accounts[0]);
 
         // Load the smart contract
-        const contractAddress = '0xc60325fdab9198471bf0111c9083f70e7bb0f025';
+        const contractAddress = '0x7f941e9db242553D80b64C3872189ADBF9440eAd';
         const contract = new web3.eth.Contract(abi, contractAddress);
         setContract(contract);
       };

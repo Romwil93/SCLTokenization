@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function CompanyView() {
   const { web3, account, contract } = useWeb3();
-  if (account == "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
+  if (account != "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
     return (
       <>
         <AppBar />
