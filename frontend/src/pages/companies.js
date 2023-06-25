@@ -4,11 +4,21 @@ import AppBar from '../components/AppBar';
 import Unauthorized from '@/components/Unauthorized';
 import StatusBar from '../components/StatusBar';
 import useWeb3 from '../hooks/useWeb3';
+import Loading from '../components/Loading';
 import Link from 'next/link';
 
 export default function CompanyView() {
-  const { web3, account, contract } = useWeb3();
-  if (account != "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
+  const { web3, account, contract, owners } = useWeb3();
+
+  const isLoading = !owners; // Check if owners data is not yet available
+
+  if (isLoading) {
+    return <Loading />; // Render a loading page while owners data is loading
+  }
+
+  const isOwner = owners.includes(account);
+
+  if (!isOwner) {
     return (
       <>
         <AppBar />

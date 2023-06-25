@@ -21,7 +21,7 @@ const pages = ['Investors', 'Companies', 'Register'];
 const pagesNonAdmin = ['Investors', 'Register'];
 
 function ResponsiveAppBar() {
-    const { web3, account, contract } = useWeb3();
+    const { web3, account, contract, owners } = useWeb3();
 
 
     // Function to truncate the address for better readability
@@ -48,7 +48,10 @@ function ResponsiveAppBar() {
         setAnchorElUser(null);
     };
 
-    if (account != "0x5a88f1E531916b681b399C33F519b7E2E54b5213") {
+    // check if user is contract owner, is boolean
+    const isOwner = owners && owners.includes(account);
+    
+    if (!isOwner) {
         return (
             <AppBar position="static" color="transparent">
                 <Container maxWidth="xl">
