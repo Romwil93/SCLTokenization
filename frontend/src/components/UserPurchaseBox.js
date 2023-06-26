@@ -17,6 +17,28 @@ const UserPurchaseBox = () => {
   const [amountInMatic, setAmountInMatic] = useState('');
   const [amountInTokens, setAmountInTokens] = useState('');
 
+  let [tokenBalance, setTokenBalance] = useState(0);
+  let [shareBalance, setShareBalance] = useState(0);
+  let [fractionsBalance, setFractionsBalance] = useState(0);
+
+  const fetchTokenBalance = async () => {
+    if (!account || !contract) return;
+    try {
+      const balance = await contract.methods.balanceOf(account).call();
+      const tokenBal = balance / 10 ** 18;
+      const shareBal = Math.floor(tokenBal);
+      const fractionsBal = parseFloat((tokenBal - shareBal).toFixed(4));
+      setTokenBalance(tokenBal);
+      console.log(tokenBalance)
+      setShareBalance(shareBal);
+      console.log(shareBalance)
+      setFractionsBalance(fractionsBal);
+      console.log(fractionsBalance);
+    } catch (error) {
+      console.error('Error fetching token balance:', error);
+    }
+  }; 
+
   useEffect(() => {
     if (amountInMatic !== '') {
       setAmountInTokens(amountInMatic / tokenPrice);
@@ -41,12 +63,17 @@ const UserPurchaseBox = () => {
     fetchTokenPrice();
   }, [contract]);
 
+  useEffect(() => {
+    fetchTokenBalance();
+  }, [contract]);
+
   const buyTokens = async (amountInMatic) => {
     if (web3 && account && contract) {
       console.log('Buying tokens...');
       const roundedNumber = parseFloat(amountInMatic.toFixed(18));
       console.log(roundedNumber)
       await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(roundedNumber.toString(), 'ether') });
+      fetchTokenBalance();
     } else {
       window.alert('Please connect to MetaMask.');
     }
@@ -56,7 +83,7 @@ const UserPurchaseBox = () => {
     <div className={styles.container1}>
       <div className={styles.rectangle}>
         <h1>Company Name AG</h1>
-        <Balance web3={web3} account={account} contract={contract} />
+        <Balance web3={web3} account={account} contract={contract} tokenBalance={tokenBalance} shareBalance={shareBalance} fractionsBalance={fractionsBalance} />
         <TextField
           id="filled-number"
           label="MATIC"
