@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ref, set, database, push } from '../firebase';
+import { getDatabase, get } from 'firebase/database';
+import levenshtein from 'fast-levenshtein';
 import useWeb3 from '../hooks/useWeb3';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -10,6 +12,8 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 
 const RegistrationForm = () => {
@@ -17,7 +21,8 @@ const RegistrationForm = () => {
   const [type, setType] = useState(''); 
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
-  const [error, setError] = useState(null);
+  var [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [country, setCountry] = useState('');
   const [address, setAddress] = useState('');
   const [postCode, setPostcode] = useState('');
@@ -73,7 +78,7 @@ const RegistrationForm = () => {
     var floatResult = parseFloat(result); // Convert to float
     console.log(floatResult);
 
-    if (result > 0.6) {
+    if (result > 0.91) {
       setNameError("This name appears to be fictional. Please use your real name.");
     } else {
       setNameError(null);
@@ -83,11 +88,41 @@ const RegistrationForm = () => {
   const typeOptions = ['Natural Person', 'Legal Entity'];
   const countries = ['Switzerland', 'United States', 'Canada', 'United Kingdom', 'Australia']; // Add more countries as needed
 
+  const checkSanctionsList = async (name) => {
+    const db = getDatabase();
+    const sanctionsListRef = ref(db, 'sanctions/');
+    const snapshot = await get(sanctionsListRef);
+    const sanctionsList = snapshot.val();
+    const sanctionedNames = Object.values(sanctionsList).map(item => item.name);
+    let isSanctioned = false;
+    const maxAllowedDistance = 2; // Define your own value for the maximum allowed distance
+  
+    const lowerCaseName = name.toLowerCase(); // Convert user's name to lower case
+
+    sanctionedNames.forEach(sanctionedName => {
+      const lowerCaseSanctionedName = sanctionedName.toLowerCase(); // Convert sanctioned name to lower case
+      const distance = levenshtein.get(lowerCaseName, lowerCaseSanctionedName);
+      if (distance <= maxAllowedDistance) {
+        isSanctioned = true;
+      }
+    });
+
+    return isSanctioned;
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Prevent form submission if nameError is not null
     if (nameError) {
+      setError('Name seems to be fictional, please use your real name.');
+      return;
+    }
+
+    // Check sanctions list
+    const isSanctioned = await checkSanctionsList(fullName);
+    if (isSanctioned) {
+      setError('This name is on the sanctions list and cannot register.');
       return;
     }
   
@@ -107,6 +142,7 @@ const RegistrationForm = () => {
       setCountry('');
       setError(null);
       setNameError(null);
+      setSuccess('Registration successful!');
     } catch (error) {
         setError(error.message);
     }
@@ -116,7 +152,6 @@ const RegistrationForm = () => {
     <div className={styles.container1}>
       <div className={styles.rectangle}>
         <h1>Registration</h1>
-        {error && <p>{error}</p>}
         <form onSubmit={handleSubmit} >
         <div>
             <p>Type</p>
@@ -244,6 +279,16 @@ const RegistrationForm = () => {
           <Button className={styles.button} type="submit" variant="contained" sx={{ width: '100%', mt: 2, mb: 2 }}>
             Register
           </Button>
+          {error && 
+            <Stack sx={{ width: '100%', mb: '15px' }} spacing={2}>
+              <Alert severity="error">{ error }</Alert>
+            </Stack>
+          }
+          {success &&
+            <Stack sx={{ width: '100%', mb: '15px' }} spacing={2}>
+                <Alert severity="success">{ success }</Alert>
+            </Stack>
+          }        
         </form>
       </div>
     </div>
