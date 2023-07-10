@@ -10,9 +10,12 @@ import MenuItem from '@mui/material/MenuItem';
 import useWeb3 from '../hooks/useWeb3';
 import Balance from './Balance';
 import { set } from 'firebase/database';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SendIcon from '@mui/icons-material/Send';
 
 const UserPurchaseBox = () => {
   const { web3, account, contract } = useWeb3();
+  const [loading, setLoading] = useState(false);
 
   const [tokenPrice, setTokenPrice] = useState(0);
   const [amountInMatic, setAmountInMatic] = useState('');
@@ -68,14 +71,19 @@ const UserPurchaseBox = () => {
   }, [contract]);
 
   const buyTokens = async (amountInMatic) => {
+    setLoading(true);
     if (web3 && account && contract) {
-      const roundedNumber = parseFloat(amountInMatic.toFixed(18));
-      await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(roundedNumber.toString(), 'ether') });
-      fetchTokenBalance();
-
+      try {
+        const roundedNumber = parseFloat(amountInMatic.toFixed(18));
+        await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(roundedNumber.toString(), 'ether') });
+        fetchTokenBalance();
+      } catch (error) {
+        console.error(error);
+      }
     } else {
       window.alert('Please connect to MetaMask.');
-    }
+    } 
+    setLoading(false);
   }; 
   
   return (
@@ -110,18 +118,15 @@ const UserPurchaseBox = () => {
             mt: 1,
           }}
         />
-        <div className={styles.flexButton}>
-          <Button 
-            variant="contained"
+        <LoadingButton
             onClick={() => buyTokens(amountInMatic)}
-            className={styles.button}
-            sx={{                            
-                width: '100%',
-                mt: 1,                           
-            }}>
-            Buy
-          </Button>
-        </div>
+            loading={loading}
+            loadingPosition="end"
+            variant="contained"
+            sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: 'grey', }, width: '100%', mt: 1 }}
+          >
+            <span>Buy</span>
+        </LoadingButton>
         <div>
           <p className={styles.finePrint}>Before or when you purchase tokens, you are required to register. Please see the registration page for more details!</p>
         </div>

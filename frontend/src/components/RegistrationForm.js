@@ -18,7 +18,8 @@ import Web3 from 'web3';
 import WarningIcon from '@mui/icons-material/Warning';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-
+import LoadingButton from '@mui/lab/LoadingButton';
+import SendIcon from '@mui/icons-material/Send';
 
 const RegistrationForm = () => {
   const { web3, account, contract } = useWeb3();
@@ -35,6 +36,7 @@ const RegistrationForm = () => {
   const typeOptions = ['Natural Person', 'Legal Entity'];
   const countries = ['Switzerland', 'Germany']; // Add more countries as needed
   var [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
 
   useEffect(() => {
@@ -111,12 +113,14 @@ const RegistrationForm = () => {
     return isSanctioned;
   };
   
-  const handleSubmit = async (e) => {
+  const handleClick = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     // Prevent form submission if nameError is not null
     const isFictional = await checkNameIsFictional(fullName);
     if (isFictional) {
+      setLoading(false);
       setError('Name seems to be fictional, please use your real name.');
       return;
     }
@@ -124,6 +128,7 @@ const RegistrationForm = () => {
     // Check sanctions list
     const isSanctioned = await checkSanctionsList(fullName);
     if (isSanctioned) {
+      setLoading(false);
       setError('This name is on the sanctions list and cannot register.');
       return;
     }
@@ -135,14 +140,19 @@ const RegistrationForm = () => {
       await set(newUser, { type, fullName, email, address, postCode, city, country, differentAccount, recoverable });
 
       // register hash and address in smart contract
-      const hash = Web3.utils.keccak256(fullName + address);
-      try {
-        await contract.methods.register(hash, recoverable).send({ from: account });
-      }
-      catch (error) {
-        console.log(error);
+      if (recoverable) {
+        const hash = Web3.utils.keccak256(fullName + address);
+        try {
+          await contract.methods.registerHash(hash).send({ from: account });
+        }
+        catch (error) {
+          setLoading(false);
+          setError('Registration failed, please approve the registration transaction with your wallet!');
+          return;
+        }
       }
 
+      setLoading(false);
       // Reset form
       setType('');
       setFullName('');
@@ -163,7 +173,7 @@ const RegistrationForm = () => {
     <div className={styles.container1}>
       <div className={styles.rectangle}>
         <h1>Registration</h1>
-        <form onSubmit={handleSubmit} >
+        <form onSubmit={handleClick}>
         <div>
           <p>
             Please read our registration agreement before registering! It can be found <a href="/test.pdf" download>here</a>.
@@ -304,9 +314,16 @@ const RegistrationForm = () => {
                 </IconButton>
               </Tooltip>
           </div>
-          <Button className={styles.button} type="submit" variant="contained" sx={{ width: '100%', mt: 2, mb: 2 }}>
-            Register
-          </Button>
+          <LoadingButton
+            type='submit'
+            endIcon={<SendIcon />}
+            loading={loading}
+            loadingPosition="end"
+            variant="contained"
+            sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: 'grey', }, width: '100%', mt: 2, mb: 2 }}
+          >
+            <span>Send</span>
+          </LoadingButton>
           {error && 
             <Stack sx={{ width: '100%', mb: '15px' }} spacing={2}>
               <Alert severity="error">{ error }</Alert>
