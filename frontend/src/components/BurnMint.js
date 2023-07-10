@@ -16,6 +16,7 @@ const BurnMint = ({ web3, account, contract }) => {
         try {
             amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.burn(amount).send({ from: account });
+            setAmount('');
         } catch (err) {
             console.error(err);
         }
@@ -26,6 +27,7 @@ const BurnMint = ({ web3, account, contract }) => {
         try {
             amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.mint(account, amount).send({ from: account });
+            setAmount('');
         } catch (err) {
             console.error(err);
         }

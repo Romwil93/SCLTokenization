@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import useWeb3 from '../hooks/useWeb3';
 import Balance from './Balance';
+import { set } from 'firebase/database';
 
 const UserPurchaseBox = () => {
   const { web3, account, contract } = useWeb3();
@@ -29,11 +30,10 @@ const UserPurchaseBox = () => {
       const shareBal = Math.floor(tokenBal);
       const fractionsBal = parseFloat((tokenBal - shareBal).toFixed(4));
       setTokenBalance(tokenBal);
-      console.log(tokenBalance)
       setShareBalance(shareBal);
-      console.log(shareBalance)
       setFractionsBalance(fractionsBal);
-      console.log(fractionsBalance);
+      setAmountInTokens('');
+      setAmountInMatic('');
     } catch (error) {
       console.error('Error fetching token balance:', error);
     }
@@ -69,11 +69,10 @@ const UserPurchaseBox = () => {
 
   const buyTokens = async (amountInMatic) => {
     if (web3 && account && contract) {
-      console.log('Buying tokens...');
       const roundedNumber = parseFloat(amountInMatic.toFixed(18));
-      console.log(roundedNumber)
       await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(roundedNumber.toString(), 'ether') });
       fetchTokenBalance();
+
     } else {
       window.alert('Please connect to MetaMask.');
     }
@@ -122,6 +121,9 @@ const UserPurchaseBox = () => {
             }}>
             Buy
           </Button>
+        </div>
+        <div>
+          <p className={styles.finePrint}>Before or when you purchase tokens, you are required to register. Please see the registration page for more details!</p>
         </div>
       </div>
     </div>

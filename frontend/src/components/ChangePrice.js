@@ -15,6 +15,7 @@ const Offering = ({ web3, account, contract }) => {
         try {
             price = web3.utils.toWei(price, 'ether');
             await contract.methods.changePrice(price).send({ from: account });
+            setPrice('');
         } catch (err) {
             console.error(err);
         }

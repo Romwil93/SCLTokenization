@@ -14,6 +14,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Web3 from 'web3';
+import WarningIcon from '@mui/icons-material/Warning';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 
 const RegistrationForm = () => {
@@ -21,14 +25,17 @@ const RegistrationForm = () => {
   const [type, setType] = useState(''); 
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
-  var [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [country, setCountry] = useState('');
   const [address, setAddress] = useState('');
   const [postCode, setPostcode] = useState('');
   const [city, setCity] = useState('');
   const [differentAccount, setDifferentAccount] = useState('');
-  const [nameError, setNameError] = useState(null);
+  const [recoverable, setRecoverable] = useState(false);
+  const typeOptions = ['Natural Person', 'Legal Entity'];
+  const countries = ['Switzerland', 'Germany']; // Add more countries as needed
+  var [error, setError] = useState(null);
+
 
   useEffect(() => {
     setDifferentAccount(account || '');
@@ -41,7 +48,7 @@ const RegistrationForm = () => {
       "messages": [
         {
           "role": "user",
-          "content": "Return a number in the range of 0 and 1, based on the likely hood that below name is fictional or real - 1 being fictional, 0 being real. It doesn't matter if you are uncertain, just give me a number, and only a number! \n" + name
+          "content": "Return a number in the range of 0 and 1, based on the likely hood that below name is fictional or real - 1 being fictional, 0 being real. Fictional names are names that come from movies, like Mickey Mouse or James Bond. If names from movies/series or any other entertainment are entered, you should return the number 1. It doesn't matter if you are uncertain, just give me a number, and only a number! \n" + name
         }
       ],
       "max_tokens": 3,
@@ -69,24 +76,19 @@ const RegistrationForm = () => {
     }
   };
 
-  const handleNameBlur = async (e) => {
-    const name = e.target.value;
-  
+  const checkNameIsFictional = async (name) => {
+    let isFictional = false;
     var result = await checkName(name);
     result = result.replace(/"/g, ''); // Remove extra quotes
     result = result.replace(/\\/g, '').replace(/"/g, ''); // Remove backslashes and quotes
     var floatResult = parseFloat(result); // Convert to float
-    console.log(floatResult);
+    // console.log(floatResult);
 
     if (result > 0.91) {
-      setNameError("This name appears to be fictional. Please use your real name.");
-    } else {
-      setNameError(null);
-    }
+      isFictional = true;
+    } 
+    return isFictional;
   };
-
-  const typeOptions = ['Natural Person', 'Legal Entity'];
-  const countries = ['Switzerland', 'United States', 'Canada', 'United Kingdom', 'Australia']; // Add more countries as needed
 
   const checkSanctionsList = async (name) => {
     const db = getDatabase();
@@ -95,7 +97,7 @@ const RegistrationForm = () => {
     const sanctionsList = snapshot.val();
     const sanctionedNames = Object.values(sanctionsList).map(item => item.name);
     let isSanctioned = false;
-    const maxAllowedDistance = 2; // Define your own value for the maximum allowed distance
+    const maxAllowedDistance = 2;
   
     const lowerCaseName = name.toLowerCase(); // Convert user's name to lower case
 
@@ -106,7 +108,6 @@ const RegistrationForm = () => {
         isSanctioned = true;
       }
     });
-
     return isSanctioned;
   };
   
@@ -114,7 +115,8 @@ const RegistrationForm = () => {
     e.preventDefault();
 
     // Prevent form submission if nameError is not null
-    if (nameError) {
+    const isFictional = await checkNameIsFictional(fullName);
+    if (isFictional) {
       setError('Name seems to be fictional, please use your real name.');
       return;
     }
@@ -130,8 +132,18 @@ const RegistrationForm = () => {
       // Create a new user in the database with a unique ID
       const newUserRef = ref(database, 'users/');
       const newUser = push(newUserRef);
-      await set(newUser, { type, fullName, email, address, postCode, city, country, differentAccount });
-  
+      await set(newUser, { type, fullName, email, address, postCode, city, country, differentAccount, recoverable });
+
+      // register hash and address in smart contract
+      const hash = Web3.utils.keccak256(fullName + address);
+      try {
+        await contract.methods.register(hash, recoverable).send({ from: account });
+      }
+      catch (error) {
+        console.log(error);
+      }
+
+      // Reset form
       setType('');
       setFullName('');
       setEmail('');
@@ -141,7 +153,6 @@ const RegistrationForm = () => {
       setCity('');
       setCountry('');
       setError(null);
-      setNameError(null);
       setSuccess('Registration successful!');
     } catch (error) {
         setError(error.message);
@@ -153,6 +164,11 @@ const RegistrationForm = () => {
       <div className={styles.rectangle}>
         <h1>Registration</h1>
         <form onSubmit={handleSubmit} >
+        <div>
+          <p>
+            Please read our registration agreement before registering! It can be found <a href="/test.pdf" download>here</a>.
+          </p>
+        </div>
         <div>
             <p>Type</p>
             <FormControl fullWidth>
@@ -182,9 +198,6 @@ const RegistrationForm = () => {
               label="Name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              onBlur={handleNameBlur}
-              error={!!nameError}
-              helperText={nameError}
               className={styles.customTextField}
               sx={{ width: '100%' }}
             />
@@ -258,7 +271,7 @@ const RegistrationForm = () => {
             </FormControl>
           </div>
           <div>
-            <p>Ethereum Address</p>
+            <p>Polygon Address</p>
             <TextField
               required
               id="outlined-required"
@@ -275,6 +288,21 @@ const RegistrationForm = () => {
               label="Switzerland is my only tax country" 
               sx={{ color: 'white' }}
             />
+          </div>
+          <div>
+            <FormControlLabel 
+              control={<Checkbox sx={{ color: 'white' }}/>} 
+              label="I want my account to be recoverable" 
+              sx={{ color: 'white' }}
+              value={recoverable}
+              onChange={(e) => setRecoverable(e.target.checked)}
+            />
+             <Tooltip title="By opting for this option, the Token Holder consents to grant partial authority over the account to the Issuer and Deputy." placement='top'>
+                <IconButton>
+                  <WarningIcon 
+                    sx={{ color: 'white' }} />
+                </IconButton>
+              </Tooltip>
           </div>
           <Button className={styles.button} type="submit" variant="contained" sx={{ width: '100%', mt: 2, mb: 2 }}>
             Register

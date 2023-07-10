@@ -28,9 +28,9 @@ export default function BasicTable({ web3, account, contract, tokenBalance, shar
         <TableHead>
             <TableRow>
                 <TableCell>Address</TableCell>
-                <TableCell align="right">Token Balance</TableCell>
-                <TableCell align="right">Share Balance</TableCell>
-                <TableCell align="right">Fractional Part Of Token Balance</TableCell>
+                <TableCell align="right">Balance</TableCell>
+                <TableCell align="right">Shares</TableCell>
+                <TableCell align="right">Fractions</TableCell>
             </TableRow>
         </TableHead>
         <TableBody>

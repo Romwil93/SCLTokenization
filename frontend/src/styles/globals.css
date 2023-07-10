@@ -26,6 +26,13 @@ p {
   text-decoration: none !important;
 }
 
+a {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
 button {
   font-family: 'Inter';
   font-style: normal;

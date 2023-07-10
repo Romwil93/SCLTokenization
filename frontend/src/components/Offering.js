@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
+import { set } from 'firebase/database';
 
 const Offering = ({ web3, account, contract }) => {
     let [amount, setAmount] = useState(0);
@@ -22,6 +23,8 @@ const Offering = ({ web3, account, contract }) => {
             price = web3.utils.toWei(price, 'ether');
             amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.startOffering(price, amount).send({ from: account });
+            setAmount('');
+            setPrice('');
         } catch (err) {
             console.error(err);
         }

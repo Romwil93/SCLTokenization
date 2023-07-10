@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
 
 const Offering = ({ web3, account, contract }) => {
-    const [msg, setMsg] = useState("Enter your announcement here");
+    const [msg, setMsg] = useState('');
 
     
     const handleChange = (e) => {
@@ -14,6 +14,7 @@ const Offering = ({ web3, account, contract }) => {
     const handleAnnouncement = async () => {
         try {
             await contract.methods.announcement(msg).send({ from: account });
+            setMsg('');
         } catch (err) {
             console.error(err);
         }
@@ -26,7 +27,7 @@ const Offering = ({ web3, account, contract }) => {
                 label="Input your announcement"
                 multiline
                 rows={4}
-                defaultValue=""
+                onChange={handleChange}
                 className={styles.customTextField}
                 sx={{ 
                     width: '100%', 

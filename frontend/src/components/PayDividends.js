@@ -15,6 +15,7 @@ const PayDividends = ({ web3, account, contract }) => {
         try {
             amount = web3.utils.toWei(amount, 'ether');
             await contract.methods.payDividends().send({ from: account, value: amount });
+            setAmount('');
         } catch (err) {
             console.error(err);
         }
