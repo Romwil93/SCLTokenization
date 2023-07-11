@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import styles from '../styles/CompanyBox.module.css';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { set } from 'firebase/database';
 
 
 const BurnMint = ({ web3, account, contract }) => {

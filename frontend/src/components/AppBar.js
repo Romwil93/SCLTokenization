@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useEthereumAddress } from '../contexts/EthereumAddressContext';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -8,14 +7,20 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import styles from '../styles/header.module.css';
 import Link from 'next/link';
 import useWeb3 from '../hooks/useWeb3';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#05503C',
+      },
+    },
+});
 
 const pages = ['Investors', 'Companies', 'Register'];
 const pagesNonAdmin = ['Investors', 'Register'];
@@ -53,7 +58,8 @@ function ResponsiveAppBar() {
     
     if (!isOwner) {
         return (
-            <AppBar position="static" color="transparent">
+            <ThemeProvider theme={theme}>
+            <AppBar position="static" color='primary'>
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <img
@@ -120,11 +126,13 @@ function ResponsiveAppBar() {
                         </Box>
                     </Toolbar>
                 </Container>
-            </AppBar>           
+            </AppBar>   
+            </ThemeProvider>        
         )
     } else {
         return (
-            <AppBar position="static" color="transparent">
+            <ThemeProvider theme={theme}>
+            <AppBar position="static" color="primary">
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <img
@@ -192,6 +200,7 @@ function ResponsiveAppBar() {
                     </Toolbar>
                 </Container>
             </AppBar>
+            </ThemeProvider>
         );
     }    
 }

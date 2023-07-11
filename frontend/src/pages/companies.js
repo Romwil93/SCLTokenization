@@ -5,7 +5,6 @@ import Unauthorized from '@/components/Unauthorized';
 import StatusBar from '../components/StatusBar';
 import useWeb3 from '../hooks/useWeb3';
 import Loading from '../components/Loading';
-import Link from 'next/link';
 
 export default function CompanyView() {
   const { web3, account, contract, owners } = useWeb3();
