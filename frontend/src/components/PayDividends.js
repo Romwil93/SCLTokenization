@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import styles from '../styles/CompanyBox.module.css';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const PayDividends = ({ web3, account, contract }) => {
     let [amount, setAmount] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setAmount(e.target.value);
     };
 
     const handleSetAmount = async () => {
+        setLoading(true);
         if (amount < 0) return;
         try {
             amount = web3.utils.toWei(amount, 'ether');
@@ -19,6 +22,7 @@ const PayDividends = ({ web3, account, contract }) => {
         } catch (err) {
             console.error(err);
         }
+        setLoading(false);
     };
     
     return (
@@ -37,16 +41,20 @@ const PayDividends = ({ web3, account, contract }) => {
                     className={styles.customTextField}
                 />
                 <div className={styles.flexButton}>
-                    <Button 
+                    <LoadingButton 
                         variant="contained"
+                        loading={loading}
+                        loadingPosition="end"
                         onClick={handleSetAmount}
-                        className={styles.button}
                         sx={{ 
+                            backgroundColor: 'white', 
+                            color: 'black', 
+                            '&:hover': { backgroundColor: 'grey', },
                             width: '100%', 
                             mt: 1,
                         }}>
                             Pay out dividends
-                    </Button>
+                    </LoadingButton>
                 </div>
         </div>
     );

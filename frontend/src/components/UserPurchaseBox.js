@@ -11,7 +11,6 @@ import useWeb3 from '../hooks/useWeb3';
 import Balance from './Balance';
 import { set } from 'firebase/database';
 import LoadingButton from '@mui/lab/LoadingButton';
-import SendIcon from '@mui/icons-material/Send';
 
 const UserPurchaseBox = () => {
   const { web3, account, contract } = useWeb3();
