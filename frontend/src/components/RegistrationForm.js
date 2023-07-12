@@ -176,7 +176,7 @@ const RegistrationForm = () => {
         <form onSubmit={handleClick}>
         <div>
           <p>
-            Please read our registration agreement before registering! It can be found <a href="/test.pdf" download style={{ textDecoration: 'underline' }}>here</a>.
+            Please read our registration agreement before registering! It can be found <a href="/Registration_Agreement_SCL_Professor.pdf" download style={{ textDecoration: 'underline' }}>here</a>.
           </p>
         </div>
         <div>
